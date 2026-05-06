@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Building2, Plus, Trash2, Check } from "lucide-react";
+import { Building2, Plus, Trash2, Check, Pencil } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
 import { supabase } from "@/integrations/supabase/client";
-import type { useFinanceData } from "@/hooks/useFinanceData";
+import type { useFinanceData, FixedAccount } from "@/hooks/useFinanceData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
@@ -13,6 +17,12 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
   const [amount, setAmount] = useState("");
   const [day, setDay] = useState("5");
   const [adding, setAdding] = useState(false);
+
+  const [editing, setEditing] = useState<FixedAccount | null>(null);
+  const [eName, setEName] = useState("");
+  const [eAmount, setEAmount] = useState("");
+  const [eDay, setEDay] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const totalFixed = data.fixed.reduce((s, f) => s + Number(f.amount), 0);
   const paidFixed = data.fixed.filter((f) => f.paid).reduce((s, f) => s + Number(f.amount), 0);
@@ -35,6 +45,28 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
   const remove = async (id: string) => {
     await supabase.from("fixed_accounts").delete().eq("id", id);
     toast.success("Conta removida");
+  };
+
+  const openEdit = (f: FixedAccount) => {
+    setEditing(f);
+    setEName(f.name);
+    setEAmount(String(f.amount));
+    setEDay(String(f.due_day));
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    if (!eName || !eAmount) return toast.error("Preencha nome e valor");
+    setSaving(true);
+    const { error } = await supabase.from("fixed_accounts").update({
+      name: eName,
+      amount: Number(eAmount),
+      due_day: Number(eDay) || 1,
+    }).eq("id", editing.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Conta atualizada");
+    setEditing(null);
   };
 
   return (
@@ -101,12 +133,43 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
               </div>
             </div>
             <div className="text-sm font-bold tabular-nums">{fmtBRL(Number(f.amount))}</div>
-            <button onClick={() => remove(f.id)} className="text-muted-foreground hover:text-destructive p-1">
+            <button onClick={() => openEdit(f)} className="text-muted-foreground hover:text-primary p-1" aria-label="Editar">
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button onClick={() => remove(f.id)} className="text-muted-foreground hover:text-destructive p-1" aria-label="Remover">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ))}
       </section>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Editar Compromisso</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name">Nome</Label>
+              <Input id="edit-name" value={eName} onChange={(e) => setEName(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-amount">Valor</Label>
+                <Input id="edit-amount" type="number" inputMode="decimal" value={eAmount} onChange={(e) => setEAmount(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-day">Dia venc.</Label>
+                <Input id="edit-day" type="number" inputMode="numeric" value={eDay} onChange={(e) => setEDay(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
+            <Button onClick={saveEdit} disabled={saving}>Salvar Alterações</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
