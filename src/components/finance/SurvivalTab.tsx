@@ -1,5 +1,6 @@
-import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins, Siren } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
+import { RecentActivity } from "@/components/finance/RecentActivity";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
@@ -12,6 +13,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const meta = 20;
   const critical = perDay < meta;
   const metaPct = Math.min(100, (perDay / meta) * 100);
+  const asfixia = perDay < 10;
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
