@@ -1,4 +1,4 @@
-import { Activity, Banknote, Smartphone, AlertTriangle } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
@@ -9,7 +9,9 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const cycle = getCurrentCycle();
   const perDay = total / cycle.remaining;
   const progress = (cycle.elapsed / cycle.totalDays) * 100;
-  const critical = perDay < 30;
+  const meta = 20;
+  const critical = perDay < meta;
+  const metaPct = Math.min(100, (perDay / meta) * 100);
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
@@ -41,12 +43,43 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
       </section>
 
+      {/* Meta de dignidade */}
+      <section className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+          <span className="flex items-center gap-1.5"><Target className="h-3 w-3" /> Meta de Dignidade</span>
+          <span>{fmtBRL(meta)}/dia</span>
+        </div>
+        <div className="mt-2 flex items-baseline justify-between">
+          <div className="text-xl font-bold tabular-nums">{fmtBRL(perDay)}</div>
+          <div className={`text-xs font-semibold ${critical ? "text-destructive" : "text-[var(--income)]"}`}>
+            {critical ? `Faltam ${fmtBRL(meta - perDay)}/dia` : "Meta atingida"}
+          </div>
+        </div>
+        <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full transition-all ${critical ? "bg-destructive" : "bg-[var(--income)]"}`}
+            style={{ width: `${metaPct}%` }}
+          />
+        </div>
+      </section>
+
       {critical && (
         <div className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>Alerta: orçamento diário abaixo do limite operacional mínimo.</span>
+          <span>Alerta: orçamento diário abaixo da meta de dignidade ({fmtBRL(meta)}/dia).</span>
         </div>
       )}
+
+      {/* Recebíveis atrasados */}
+      <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+        <div className="flex items-center gap-1.5 text-[10px] tracking-[0.3em] uppercase text-amber-500/90">
+          <HandCoins className="h-3 w-3" /> Recebíveis Atrasados
+        </div>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="text-sm">Jaisson</div>
+          <div className="text-sm font-bold tabular-nums">{fmtBRL(50)}</div>
+        </div>
+      </section>
 
       {/* Baldes */}
       <section className="space-y-3">
