@@ -97,6 +97,8 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         <BucketCard icon={Smartphone} name="PicPay" balance={picpay?.balance ?? 0} accent="primary" />
         <BucketCard icon={Banknote} name="Espécie" balance={especie?.balance ?? 0} accent="primary" />
       </section>
+
+      <RecentActivity data={data} />
     </div>
   );
 }
