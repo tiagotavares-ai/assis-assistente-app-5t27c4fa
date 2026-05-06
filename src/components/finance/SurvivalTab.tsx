@@ -9,7 +9,9 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const cycle = getCurrentCycle();
   const perDay = total / cycle.remaining;
   const progress = (cycle.elapsed / cycle.totalDays) * 100;
-  const critical = perDay < 30;
+  const meta = 20;
+  const critical = perDay < meta;
+  const metaPct = Math.min(100, (perDay / meta) * 100);
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
