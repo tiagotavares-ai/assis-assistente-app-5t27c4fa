@@ -1,12 +1,57 @@
-import { ArrowUpCircle, ArrowDownCircle, Repeat } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
+type Tx = ReturnType<typeof useFinanceData>["transactions"][number];
+
 export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceData> }) {
+  const [target, setTarget] = useState<Tx | null>(null);
+  const [busy, setBusy] = useState(false);
+
   const items = data.transactions.slice(0, 8);
   if (!items.length) return null;
 
   const walletName = (id: string) => data.wallets.find((w) => w.id === id)?.name ?? "—";
+
+  const confirmDelete = async () => {
+    if (!target) return;
+    setBusy(true);
+    try {
+      const wallet = data.wallets.find((w) => w.id === target.wallet_id);
+      if (!wallet) throw new Error("Balde não encontrado");
+      const amount = Number(target.amount);
+      // Reversal: entrada -> subtract; saida -> add; alocacao -> no-op (ambiguous side)
+      let delta = 0;
+      if (target.kind === "entrada") delta = -amount;
+      else if (target.kind === "saida") delta = amount;
+
+      if (delta !== 0) {
+        const newBalance = Number(wallet.balance) + delta;
+        const { error: uErr } = await supabase
+          .from("wallets").update({ balance: newBalance }).eq("id", wallet.id);
+        if (uErr) throw uErr;
+      }
+
+      const { error: dErr } = await supabase
+        .from("transactions").delete().eq("id", target.id);
+      if (dErr) throw dErr;
+
+      toast.success("Atividade apagada e saldo estornado");
+      setTarget(null);
+      await data.refetch();
+    } catch (e: any) {
+      toast.error(e.message ?? "Erro ao apagar");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <section className="space-y-2">
@@ -41,10 +86,43 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
               <div className={`text-sm font-bold tabular-nums ${color}`}>
                 {sign}{fmtBRL(Number(t.amount))}
               </div>
+              <button
+                onClick={() => setTarget(t)}
+                className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                aria-label="Apagar atividade"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           );
         })}
       </div>
+
+      <AlertDialog open={!!target} onOpenChange={(o) => !o && !busy && setTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apagar atividade?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja apagar esta atividade e estornar o valor do saldo?
+              {target && (
+                <span className="block mt-2 text-foreground font-medium">
+                  {target.description ?? target.kind} · {fmtBRL(Number(target.amount))}
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy}
+              onClick={(e) => { e.preventDefault(); confirmDelete(); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Apagar e estornar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
