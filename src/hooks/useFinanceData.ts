@@ -6,18 +6,32 @@ export type FixedAccount = {
   id: string; name: string; amount: number; due_day: number; paid: boolean;
 };
 
+export type Transaction = {
+  id: string;
+  wallet_id: string;
+  amount: number;
+  kind: "entrada" | "saida" | "alocacao";
+  description: string | null;
+  source: string | null;
+  category: string | null;
+  created_at: string;
+};
+
 export function useFinanceData() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [fixed, setFixed] = useState<FixedAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refetch = async () => {
-    const [w, f] = await Promise.all([
+    const [w, f, t] = await Promise.all([
       supabase.from("wallets").select("*").order("name"),
       supabase.from("fixed_accounts").select("*").order("due_day"),
+      supabase.from("transactions").select("*").order("created_at", { ascending: false }).limit(20),
     ]);
     if (w.data) setWallets(w.data as Wallet[]);
     if (f.data) setFixed(f.data as FixedAccount[]);
+    if (t.data) setTransactions(t.data as Transaction[]);
     setLoading(false);
   };
 
@@ -33,5 +47,5 @@ export function useFinanceData() {
   }, []);
 
   const get = (name: string) => wallets.find((w) => w.name === name);
-  return { wallets, fixed, loading, refetch, get };
+  return { wallets, fixed, transactions, loading, refetch, get };
 }
