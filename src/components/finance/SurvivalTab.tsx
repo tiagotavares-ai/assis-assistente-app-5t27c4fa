@@ -1,5 +1,6 @@
-import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins, Siren } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
+import { RecentActivity } from "@/components/finance/RecentActivity";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
@@ -12,9 +13,16 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const meta = 20;
   const critical = perDay < meta;
   const metaPct = Math.min(100, (perDay / meta) * 100);
+  const asfixia = perDay < 10;
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
+      {asfixia && (
+        <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive animate-pulse">
+          <Siren className="h-4 w-4 shrink-0 mt-0.5" />
+          <span className="font-bold uppercase tracking-wider">Atenção: Zona de Asfixia · {fmtBRL(perDay)}/dia</span>
+        </div>
+      )}
       {/* Métrica principal */}
       <section
         className="relative overflow-hidden rounded-2xl p-5 border border-primary/30"
@@ -89,6 +97,8 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         <BucketCard icon={Smartphone} name="PicPay" balance={picpay?.balance ?? 0} accent="primary" />
         <BucketCard icon={Banknote} name="Espécie" balance={especie?.balance ?? 0} accent="primary" />
       </section>
+
+      <RecentActivity data={data} />
     </div>
   );
 }

@@ -17,8 +17,9 @@ export async function postTransaction(params: {
   delta: number; // pode ser positivo ou negativo
   description?: string;
   source?: string;
+  category?: string;
 }) {
-  const { walletId, amount, kind, delta, description, source } = params;
+  const { walletId, amount, kind, delta, description, source, category } = params;
 
   const { data: wallet, error: wErr } = await supabase
     .from("wallets").select("balance").eq("id", walletId).single();
@@ -27,7 +28,8 @@ export async function postTransaction(params: {
   const newBalance = Number(wallet.balance) + delta;
 
   const { error: tErr } = await supabase.from("transactions").insert({
-    wallet_id: walletId, amount, kind, description: description ?? null, source: source ?? null,
+    wallet_id: walletId, amount, kind,
+    description: description ?? null, source: source ?? null, category: category ?? null,
   });
   if (tErr) throw tErr;
 

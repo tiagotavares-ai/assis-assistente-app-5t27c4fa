@@ -4,6 +4,7 @@ import { useFinanceData } from "@/hooks/useFinanceData";
 import { SurvivalTab } from "@/components/finance/SurvivalTab";
 import { StructuralTab } from "@/components/finance/StructuralTab";
 import { IncomeTab } from "@/components/finance/IncomeTab";
+import { MovementFab } from "@/components/finance/MovementFab";
 import { Toaster } from "@/components/ui/sonner";
 
 type Tab = "sobrevivencia" | "estrutural" | "entrada";
@@ -73,6 +74,8 @@ export function Dashboard() {
           })}
         </div>
       </nav>
+
+      {!data.loading && <MovementFab data={data} />}
 
       <Toaster richColors position="top-center" />
     </div>
