@@ -1,4 +1,4 @@
-import { Activity, Banknote, Smartphone, AlertTriangle } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
