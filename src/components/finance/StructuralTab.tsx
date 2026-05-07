@@ -54,7 +54,7 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
         amount: Number(account.amount),
         kind: willBePaid ? "saida" : "entrada",
         description: willBePaid ? `Pagamento ${account.name}` : `Estorno ${account.name}`,
-        category: "estrutural",
+        category: "Infraestrutura",
       });
       toast.success(willBePaid ? `${account.name} pago` : `${account.name} desmarcado`);
     }
