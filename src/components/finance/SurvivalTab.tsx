@@ -80,8 +80,9 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 
       {/* Contas atrasadas */}
       {(() => {
-        const today = new Date().getDate();
-        const overdue = data.fixed.filter((f) => !f.paid && f.due_day < today);
+        const cutoff = new Date(2026, 4, 6); // 06/05/2026
+        const cutoffDay = cutoff.getDate();
+        const overdue = data.fixed.filter((f) => !f.paid && f.due_day < cutoffDay);
         if (overdue.length === 0) return null;
         const totalOverdue = overdue.reduce((s, f) => s + Number(f.amount), 0);
         return (
