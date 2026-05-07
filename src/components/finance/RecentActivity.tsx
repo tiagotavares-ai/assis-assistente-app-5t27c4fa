@@ -56,9 +56,19 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
 
   return (
     <section className="space-y-2">
-      <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground px-1">
-        Atividades Recentes
-      </h2>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+          Atividades Recentes
+        </h2>
+        <button
+          onClick={() => setClearOpen(true)}
+          className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md hover:bg-destructive/10"
+          aria-label="Limpar histórico"
+        >
+          <Brush className="h-3 w-3" />
+          Limpar Histórico
+        </button>
+      </div>
       <div className="rounded-xl border border-border bg-card divide-y divide-border/60">
         {items.map((t) => {
           const isEntrada = t.kind === "entrada";
