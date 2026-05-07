@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Brush } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -13,6 +13,7 @@ type Tx = ReturnType<typeof useFinanceData>["transactions"][number];
 
 export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const [target, setTarget] = useState<Tx | null>(null);
+  const [clearOpen, setClearOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const items = data.transactions.slice(0, 8);
@@ -55,9 +56,19 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
 
   return (
     <section className="space-y-2">
-      <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground px-1">
-        Atividades Recentes
-      </h2>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+          Atividades Recentes
+        </h2>
+        <button
+          onClick={() => setClearOpen(true)}
+          className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md hover:bg-destructive/10"
+          aria-label="Limpar histórico"
+        >
+          <Brush className="h-3 w-3" />
+          Limpar Histórico
+        </button>
+      </div>
       <div className="rounded-xl border border-border bg-card divide-y divide-border/60">
         {items.map((t) => {
           const isEntrada = t.kind === "entrada";
@@ -123,6 +134,47 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={clearOpen} onOpenChange={(o) => !o && !busy && setClearOpen(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar histórico?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação apaga todos os registros visíveis de atividades.
+              <span className="block mt-2 text-foreground font-medium">
+                Os saldos dos baldes (Nubank, PicPay, Espécie) NÃO serão alterados.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy}
+              onClick={async (e) => {
+                e.preventDefault();
+                setBusy(true);
+                try {
+                  const ids = items.map((i) => i.id);
+                  const { error } = await supabase
+                    .from("transactions").delete().in("id", ids);
+                  if (error) throw error;
+                  toast.success("Histórico limpo. Saldos preservados.");
+                  setClearOpen(false);
+                  await data.refetch();
+                } catch (e: any) {
+                  toast.error(e.message ?? "Erro ao limpar");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Limpar histórico
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
+
