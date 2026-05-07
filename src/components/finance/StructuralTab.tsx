@@ -40,7 +40,24 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
   };
 
   const togglePaid = async (id: string, paid: boolean) => {
-    await supabase.from("fixed_accounts").update({ paid: !paid }).eq("id", id);
+    const account = data.fixed.find((f) => f.id === id);
+    if (!account) return;
+    const willBePaid = !paid;
+    const { error } = await supabase.from("fixed_accounts").update({ paid: willBePaid }).eq("id", id);
+    if (error) return toast.error(error.message);
+    if (nubank) {
+      const delta = willBePaid ? -Number(account.amount) : Number(account.amount);
+      const newBalance = Number(nubank.balance) + delta;
+      await supabase.from("wallets").update({ balance: newBalance }).eq("id", nubank.id);
+      await supabase.from("transactions").insert({
+        wallet_id: nubank.id,
+        amount: Number(account.amount),
+        kind: willBePaid ? "saida" : "entrada",
+        description: willBePaid ? `Pagamento ${account.name}` : `Estorno ${account.name}`,
+        category: "estrutural",
+      });
+      toast.success(willBePaid ? `${account.name} pago` : `${account.name} desmarcado`);
+    }
   };
   const remove = async (id: string) => {
     await supabase.from("fixed_accounts").delete().eq("id", id);
