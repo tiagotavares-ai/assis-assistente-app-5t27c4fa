@@ -24,13 +24,13 @@ export function Dashboard() {
       {/* Header */}
       <header className="px-5 pt-6 pb-4 border-b border-border/60">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_var(--primary)]" />
+          <div className="h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_12px_#22c55e]" />
           <span className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
             Sistema Operacional
           </span>
         </div>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">
-          Painel <span className="text-primary">Financeiro</span>
+          Assis <span className="text-primary">Assistente</span>
         </h1>
       </header>
 
