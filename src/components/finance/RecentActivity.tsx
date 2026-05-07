@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Brush } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
 import { supabase } from "@/integrations/supabase/client";
 import {
