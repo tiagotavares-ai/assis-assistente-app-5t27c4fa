@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Activity, Wallet as WalletIcon, ArrowDownToLine } from "lucide-react";
+import { Activity, Wallet as WalletIcon, ArrowDownToLine, LogOut } from "lucide-react";
 import { useFinanceData } from "@/hooks/useFinanceData";
 import { SurvivalTab } from "@/components/finance/SurvivalTab";
 import { StructuralTab } from "@/components/finance/StructuralTab";
 import { IncomeTab } from "@/components/finance/IncomeTab";
 import { MovementFab } from "@/components/finance/MovementFab";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthGate } from "@/components/auth/AuthGate";
+import { supabase } from "@/integrations/supabase/client";
 
 type Tab = "sobrevivencia" | "estrutural" | "entrada";
 
@@ -16,18 +18,39 @@ const TABS: { id: Tab; label: string; icon: typeof Activity }[] = [
 ];
 
 export function Dashboard() {
+  return (
+    <AuthGate>
+      {() => <DashboardInner />}
+    </AuthGate>
+  );
+}
+
+function DashboardInner() {
   const [tab, setTab] = useState<Tab>("sobrevivencia");
   const data = useFinanceData();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto">
       {/* Header */}
       <header className="px-5 pt-6 pb-4 border-b border-border/60">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_12px_#22c55e]" />
-          <span className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
-            Sistema Operacional
-          </span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_12px_#22c55e]" />
+            <span className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+              Sistema Operacional
+            </span>
+          </div>
+          <button
+            onClick={handleLogout}
+            aria-label="Sair"
+            className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">
           Assis <span className="text-primary">Assistente</span>
