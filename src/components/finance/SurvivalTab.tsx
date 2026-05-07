@@ -1,4 +1,4 @@
-import { Activity, Banknote, Smartphone, AlertTriangle, Target, HandCoins, Siren } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, Siren, AlertOctagon } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
 import { RecentActivity } from "@/components/finance/RecentActivity";
 import type { useFinanceData } from "@/hooks/useFinanceData";
@@ -78,16 +78,36 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
       )}
 
-      {/* Recebíveis atrasados */}
-      <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-        <div className="flex items-center gap-1.5 text-[10px] tracking-[0.3em] uppercase text-amber-500/90">
-          <HandCoins className="h-3 w-3" /> Recebíveis Atrasados
-        </div>
-        <div className="mt-2 flex items-center justify-between">
-          <div className="text-sm">Jaisson</div>
-          <div className="text-sm font-bold tabular-nums">{fmtBRL(50)}</div>
-        </div>
-      </section>
+      {/* Contas atrasadas */}
+      {(() => {
+        const today = new Date().getDate();
+        const overdue = data.fixed.filter((f) => !f.paid && f.due_day < today);
+        if (overdue.length === 0) return null;
+        const totalOverdue = overdue.reduce((s, f) => s + Number(f.amount), 0);
+        return (
+          <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-2">
+            <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-amber-500">
+              <span className="flex items-center gap-1.5">
+                <AlertOctagon className="h-3 w-3" /> Contas Atrasadas
+              </span>
+              <span className="font-bold">{fmtBRL(totalOverdue)}</span>
+            </div>
+            <div className="divide-y divide-amber-500/15">
+              {overdue.map((f) => (
+                <div key={f.id} className="flex items-center justify-between py-1.5">
+                  <div className="text-sm">
+                    {f.name}
+                    <span className="ml-2 text-[10px] uppercase tracking-wider text-amber-500/80">
+                      venceu dia {f.due_day}
+                    </span>
+                  </div>
+                  <div className="text-sm font-bold tabular-nums">{fmtBRL(Number(f.amount))}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Baldes */}
       <section className="space-y-3">
