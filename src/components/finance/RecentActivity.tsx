@@ -134,6 +134,47 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={clearOpen} onOpenChange={(o) => !o && !busy && setClearOpen(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar histórico?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação apaga todos os registros visíveis de atividades.
+              <span className="block mt-2 text-foreground font-medium">
+                Os saldos dos baldes (Nubank, PicPay, Espécie) NÃO serão alterados.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy}
+              onClick={async (e) => {
+                e.preventDefault();
+                setBusy(true);
+                try {
+                  const ids = items.map((i) => i.id);
+                  const { error } = await supabase
+                    .from("transactions").delete().in("id", ids);
+                  if (error) throw error;
+                  toast.success("Histórico limpo. Saldos preservados.");
+                  setClearOpen(false);
+                  await data.refetch();
+                } catch (e: any) {
+                  toast.error(e.message ?? "Erro ao limpar");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Limpar histórico
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
+
