@@ -43,7 +43,11 @@ export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> })
         if (v > 0) {
           await postTransaction({
             walletId: w.id, amount: v, kind: "entrada", delta: v,
-            description: `Entrada ${source}`, source,
+            description: source === "TechHub"
+              ? `Tavares Tech Hub — ${techPurpose}`
+              : `Entrada ${source}`,
+            source,
+            category: source === "TechHub" ? techPurpose : undefined,
           });
         }
       }
