@@ -14,6 +14,7 @@ export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> })
   const [total, setTotal] = useState("");
   const [allocations, setAllocations] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [techPurpose, setTechPurpose] = useState<"Imprevistos" | "Socorro ao Lar">("Imprevistos");
 
   const totalNum = Number(total) || 0;
   const allocSum = Object.values(allocations).reduce((s, v) => s + (Number(v) || 0), 0);
