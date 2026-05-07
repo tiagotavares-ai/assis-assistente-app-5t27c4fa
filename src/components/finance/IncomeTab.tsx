@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-type Source = "INSS" | "Ajuda";
+type Source = "INSS" | "Ajuda" | "TechHub";
 
 export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const [source, setSource] = useState<Source>("INSS");
