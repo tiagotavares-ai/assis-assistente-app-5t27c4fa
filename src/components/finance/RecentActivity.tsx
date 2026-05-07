@@ -13,6 +13,7 @@ type Tx = ReturnType<typeof useFinanceData>["transactions"][number];
 
 export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const [target, setTarget] = useState<Tx | null>(null);
+  const [clearOpen, setClearOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const items = data.transactions.slice(0, 8);
