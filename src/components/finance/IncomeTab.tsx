@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDownToLine, Landmark, HandCoins, Split } from "lucide-react";
+import { ArrowDownToLine, Landmark, HandCoins, Split, Cpu } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
 import { postTransaction } from "@/lib/finance";
 import type { useFinanceData } from "@/hooks/useFinanceData";
@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-type Source = "INSS" | "Ajuda";
+type Source = "INSS" | "Ajuda" | "TechHub";
 
 export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const [source, setSource] = useState<Source>("INSS");
   const [total, setTotal] = useState("");
   const [allocations, setAllocations] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [techPurpose, setTechPurpose] = useState<"Imprevistos" | "Socorro ao Lar">("Imprevistos");
 
   const totalNum = Number(total) || 0;
   const allocSum = Object.values(allocations).reduce((s, v) => s + (Number(v) || 0), 0);
@@ -42,7 +43,11 @@ export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> })
         if (v > 0) {
           await postTransaction({
             walletId: w.id, amount: v, kind: "entrada", delta: v,
-            description: `Entrada ${source}`, source,
+            description: source === "TechHub"
+              ? `Tavares Tech Hub — ${techPurpose}`
+              : `Entrada ${source}`,
+            source,
+            category: source === "TechHub" ? techPurpose : undefined,
           });
         }
       }
@@ -69,10 +74,44 @@ export function IncomeTab({ data }: { data: ReturnType<typeof useFinanceData> })
       </section>
 
       {/* Source */}
-      <div className="grid grid-cols-2 gap-2">
-        <SourceBtn active={source === "INSS"} onClick={() => setSource("INSS")} icon={Landmark} label="Salário INSS" />
+      <div className="grid grid-cols-3 gap-2">
+        <SourceBtn active={source === "INSS"} onClick={() => setSource("INSS")} icon={Landmark} label="INSS" />
         <SourceBtn active={source === "Ajuda"} onClick={() => setSource("Ajuda")} icon={HandCoins} label="Ajudas" />
+        <SourceBtn active={source === "TechHub"} onClick={() => setSource("TechHub")} icon={Cpu} label="Tech Hub" />
       </div>
+
+      {source === "TechHub" && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-2">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+            Tavares Tech Hub — Subsídio
+          </div>
+          <div className="text-[11px] text-muted-foreground">
+            Capital de socorro destinado a imprevistos do Lar.
+          </div>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              onClick={() => setTechPurpose("Imprevistos")}
+              className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                techPurpose === "Imprevistos"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              Imprevistos
+            </button>
+            <button
+              onClick={() => setTechPurpose("Socorro ao Lar")}
+              className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                techPurpose === "Socorro ao Lar"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              Socorro ao Lar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Total input */}
       <div className="rounded-xl border border-border bg-card p-4 space-y-3">
