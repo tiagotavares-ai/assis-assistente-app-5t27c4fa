@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDownToLine, Landmark, HandCoins, Split } from "lucide-react";
+import { ArrowDownToLine, Landmark, HandCoins, Split, Cpu } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
 import { postTransaction } from "@/lib/finance";
 import type { useFinanceData } from "@/hooks/useFinanceData";
