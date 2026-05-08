@@ -54,7 +54,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
       {/* Meta de dignidade */}
       <section className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
-          <span className="flex items-center gap-1.5"><Target className="h-3 w-3" /> Meta de Dignidade</span>
+          <span className="flex items-center gap-1.5"><Target className="h-3 w-3" /> Meta de Gastos Diários</span>
           <span>{fmtBRL(meta)}/dia</span>
         </div>
         <div className="mt-2 flex items-baseline justify-between">
