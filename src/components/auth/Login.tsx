@@ -69,16 +69,8 @@ export function Login() {
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {mode === "login" ? "Entrar" : "Criar conta"}
+            Entrar
           </Button>
-
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {mode === "login" ? "Não tem conta? Criar conta" : "Já tem conta? Entrar"}
-          </button>
         </form>
       </div>
     </div>
