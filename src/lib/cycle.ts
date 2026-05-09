@@ -11,7 +11,7 @@ export function getCurrentCycle(today: Date = new Date()) {
     if (startMonth < 0) { startMonth = 11; startYear -= 1; }
   }
   const start = new Date(startYear, startMonth, 20);
-  const end = new Date(startYear, startMonth + 1, 23);
+  const end = new Date(startYear, startMonth + 1, 20);
 
   const msDay = 86400000;
   const totalDays = Math.round((end.getTime() - start.getTime()) / msDay);
