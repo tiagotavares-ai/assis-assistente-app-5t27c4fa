@@ -51,23 +51,23 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         className="relative overflow-hidden rounded-2xl p-5 border"
         style={{ background: heroBg, boxShadow: heroGlow, borderColor: `${heroColor}66` }}
       >
-        <div className="flex items-center justify-between text-black/70 text-[10px] tracking-[0.25em] uppercase">
+        <div className="flex items-center justify-between text-[10px] tracking-[0.25em] uppercase" style={{ color: heroTextSoft }}>
           <span className="flex items-center gap-1.5">
-            <Activity className="h-3 w-3" /> Métrica de Sobrevivência
+            <Activity className="h-3 w-3" /> Métrica · {isCritical ? "Crítico" : TIERS[activeTier].label}
           </span>
           <span>Ciclo: {fmtDate(cycle.start)} a {fmtDate(cycle.end)}</span>
         </div>
-        <div className="mt-3 text-primary-foreground">
+        <div className="mt-3" style={{ color: heroText }}>
           <div className="text-4xl font-bold tracking-tight">{fmtBRL(bronzePerDay)}</div>
-          <div className="text-xs opacity-80 mt-1">por dia · {cycle.bronzeDays} dias restantes</div>
+          <div className="text-xs mt-1" style={{ color: heroTextSoft }}>por dia · {cycle.bronzeDays} dias restantes</div>
         </div>
-        <div className="mt-4 h-1.5 rounded-full bg-black/25 overflow-hidden">
+        <div className="mt-4 h-1.5 rounded-full overflow-hidden" style={{ background: isCritical ? "rgba(0,0,0,0.35)" : "rgba(0,0,0,0.25)" }}>
           <div
-            className="h-full bg-primary-foreground/90 transition-all"
-            style={{ width: `${Math.min(100, progress)}%` }}
+            className="h-full transition-all"
+            style={{ width: `${Math.min(100, progress)}%`, background: heroText }}
           />
         </div>
-        <div className="mt-2 flex justify-between text-[10px] text-primary-foreground/70">
+        <div className="mt-2 flex justify-between text-[10px]" style={{ color: heroTextSoft }}>
           <span>Dia {cycle.elapsed} de {cycle.totalDays}</span>
           <span>Total: {fmtBRL(total)}</span>
         </div>
