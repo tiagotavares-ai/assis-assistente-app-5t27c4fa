@@ -189,3 +189,52 @@ function BucketCard({
     </div>
   );
 }
+
+function TierCard({
+  tierKey, perDay, days, meta, active,
+}: { tierKey: TierKey; perDay: number; days: number; meta: number; active: boolean }) {
+  const tier = TIERS[tierKey];
+  const Icon = tier.icon;
+  const pct = Math.min(100, (perDay / meta) * 100);
+  const ok = perDay >= meta;
+  return (
+    <div
+      className={`rounded-xl border p-3 transition-all ${active ? "shadow-[0_0_24px_-6px]" : ""}`}
+      style={{
+        borderColor: active ? tier.color : "var(--border)",
+        background: active
+          ? `linear-gradient(135deg, color-mix(in oklab, ${tier.color} 14%, transparent), transparent)`
+          : "transparent",
+        boxShadow: active ? `0 0 24px -6px ${tier.color}80` : undefined,
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div
+            className="h-8 w-8 rounded-lg flex items-center justify-center"
+            style={{ background: `${tier.color}22`, color: tier.color }}
+          >
+            <Icon className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="text-xs font-bold tracking-wider uppercase" style={{ color: tier.color }}>
+              {tier.label}
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              {days} {days === 1 ? "dia" : "dias"} restantes
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-base font-bold tabular-nums">{fmtBRL(perDay)}</div>
+          <div className={`text-[10px] font-semibold ${ok ? "text-[var(--income)]" : "text-destructive"}`}>
+            {ok ? "Atinge meta" : `−${fmtBRL(meta - perDay)}/dia`}
+          </div>
+        </div>
+      </div>
+      <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+        <div className="h-full transition-all" style={{ width: `${pct}%`, background: tier.color }} />
+      </div>
+    </div>
+  );
+}
