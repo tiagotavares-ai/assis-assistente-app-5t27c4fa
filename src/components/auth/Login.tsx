@@ -6,29 +6,30 @@ import { Label } from "@/components/ui/label";
 import { Activity, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+const ALLOWED_EMAILS = [
+  "tiagotavares.marques89@gmail.com",
+  "raianelourenco882@gmail.com",
+];
+
 export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const normalized = email.trim().toLowerCase();
+    if (!ALLOWED_EMAILS.includes(normalized)) {
+      toast.error("Acesso negado: este e-mail não está autorizado.");
+      return;
+    }
     setLoading(true);
     try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        toast.success("Conta criada. Faça login.");
-        setMode("login");
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalized,
+        password,
+      });
+      if (error) throw error;
     } catch (err: any) {
       toast.error(err.message ?? "Erro ao autenticar");
     } finally {
