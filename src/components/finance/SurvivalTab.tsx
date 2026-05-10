@@ -31,10 +31,12 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 
   // Cor dinâmica do card principal: maior nível atingido, ou vermelho se Bronze < meta.
   const CRITICAL = "#EF4444";
-  const heroColor = bronzePerDay < meta ? CRITICAL : TIERS[activeTier].color;
+  const isCritical = bronzePerDay < meta;
+  const heroColor = isCritical ? CRITICAL : TIERS[activeTier].color;
   const heroBg = `linear-gradient(135deg, ${heroColor}, color-mix(in oklab, ${heroColor} 55%, #000))`;
   const heroGlow = `0 0 32px -6px ${heroColor}aa`;
-  const heroLevelLabel = bronzePerDay < meta ? "Crítico" : TIERS[activeTier].label;
+  const heroText = isCritical ? "#fff" : "#0b0b0b";
+  const heroTextSoft = isCritical ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)";
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
