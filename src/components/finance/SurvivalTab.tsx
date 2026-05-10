@@ -1,29 +1,43 @@
-import { Activity, Banknote, Smartphone, AlertTriangle, Target, Siren, AlertOctagon } from "lucide-react";
+import { Activity, Banknote, Smartphone, AlertTriangle, Target, Siren, AlertOctagon, Trophy, Award, Medal } from "lucide-react";
 import { fmtBRL, fmtDate, getCurrentCycle } from "@/lib/cycle";
 import { RecentActivity } from "@/components/finance/RecentActivity";
 import type { useFinanceData } from "@/hooks/useFinanceData";
+
+const TIERS = {
+  bronze: { color: "#CD7F32", label: "Bronze", icon: Medal },
+  silver: { color: "#C0C0C0", label: "Prata", icon: Award },
+  gold:   { color: "#FFD700", label: "Ouro",   icon: Trophy },
+} as const;
+
+type TierKey = keyof typeof TIERS;
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const picpay = data.get("PicPay");
   const especie = data.get("Espécie");
   const total = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
   const cycle = getCurrentCycle();
-  const perDay = total / cycle.remaining;
-  const progress = (cycle.elapsed / cycle.totalDays) * 100;
+
+  const bronzePerDay = total / cycle.bronzeDays;
+  const silverPerDay = total / cycle.silverDays;
+  const goldPerDay = total / cycle.goldDays;
+
   const meta = 20;
-  const critical = perDay < meta;
-  const metaPct = Math.min(100, (perDay / meta) * 100);
-  const asfixia = perDay < 10;
+  const critical = bronzePerDay < meta;
+  const asfixia = bronzePerDay < 10;
+  const progress = (cycle.elapsed / cycle.totalDays) * 100;
+
+  const activeTier: TierKey =
+    goldPerDay >= meta ? "gold" : silverPerDay >= meta ? "silver" : "bronze";
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {asfixia && (
         <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive animate-pulse">
           <Siren className="h-4 w-4 shrink-0 mt-0.5" />
-          <span className="font-bold uppercase tracking-wider">Atenção: Zona de Asfixia · {fmtBRL(perDay)}/dia</span>
+          <span className="font-bold uppercase tracking-wider">Atenção: Zona de Asfixia · {fmtBRL(bronzePerDay)}/dia</span>
         </div>
       )}
-      {/* Métrica principal */}
+      {/* Métrica principal (Bronze) */}
       <section
         className="relative overflow-hidden rounded-2xl p-5 border border-primary/30"
         style={{ background: "var(--gradient-survival)", boxShadow: "var(--shadow-glow-amber)" }}
@@ -32,13 +46,12 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           <span className="flex items-center gap-1.5">
             <Activity className="h-3 w-3" /> Métrica de Sobrevivência
           </span>
-          <span>Ciclo {fmtDate(cycle.start)}–{fmtDate(cycle.end)}</span>
+          <span>Ciclo: {fmtDate(cycle.start)} a {fmtDate(cycle.end)}</span>
         </div>
         <div className="mt-3 text-primary-foreground">
-          <div className="text-4xl font-bold tracking-tight">{fmtBRL(perDay)}</div>
-          <div className="text-xs opacity-80 mt-1">por dia · {cycle.remaining} dias restantes</div>
+          <div className="text-4xl font-bold tracking-tight">{fmtBRL(bronzePerDay)}</div>
+          <div className="text-xs opacity-80 mt-1">por dia · {cycle.bronzeDays} dias restantes</div>
         </div>
-        {/* Progress */}
         <div className="mt-4 h-1.5 rounded-full bg-black/25 overflow-hidden">
           <div
             className="h-full bg-primary-foreground/90 transition-all"
@@ -51,30 +64,36 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
       </section>
 
-      {/* Meta de dignidade */}
-      <section className="rounded-xl border border-border bg-card p-4">
+      {/* Metas por Nível */}
+      <section className="rounded-2xl border border-border bg-gradient-to-b from-card to-card/60 p-4 space-y-3 shadow-[var(--shadow-industrial)]">
         <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
-          <span className="flex items-center gap-1.5"><Target className="h-3 w-3" /> Meta de Gastos Diários</span>
-          <span>{fmtBRL(meta)}/dia</span>
+          <span className="flex items-center gap-1.5"><Target className="h-3 w-3" /> Metas por Nível</span>
+          <span>Alvo {fmtBRL(meta)}/dia</span>
         </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <div className="text-xl font-bold tabular-nums">{fmtBRL(perDay)}</div>
-          <div className={`text-xs font-semibold ${critical ? "text-destructive" : "text-[var(--income)]"}`}>
-            {critical ? `Faltam ${fmtBRL(meta - perDay)}/dia` : "Meta atingida"}
-          </div>
+
+        <TierCard tierKey="bronze" perDay={bronzePerDay} days={cycle.bronzeDays} meta={meta} active={activeTier === "bronze"} />
+        <TierCard tierKey="silver" perDay={silverPerDay} days={cycle.silverDays} meta={meta} active={activeTier === "silver"} />
+        <TierCard tierKey="gold"   perDay={goldPerDay}   days={cycle.goldDays}   meta={meta} active={activeTier === "gold"} />
+
+        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
+          <span className="text-muted-foreground uppercase tracking-wider">Status hoje</span>
+          <span className="font-bold" style={{ color: TIERS[activeTier].color }}>
+            {bronzePerDay >= meta ? "Estável" : "Abaixo da meta"} · {TIERS[activeTier].label}
+          </span>
         </div>
-        <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-          <div
-            className={`h-full transition-all ${critical ? "bg-destructive" : "bg-[var(--income)]"}`}
-            style={{ width: `${metaPct}%` }}
-          />
+
+        {/* Barra de progresso tripla */}
+        <div className="h-2 rounded-full overflow-hidden flex bg-muted">
+          <div className="h-full transition-all" style={{ width: `${Math.min(100, (bronzePerDay/meta)*100)/3}%`, background: TIERS.bronze.color }} />
+          <div className="h-full transition-all" style={{ width: `${Math.min(100, (silverPerDay/meta)*100)/3}%`, background: TIERS.silver.color }} />
+          <div className="h-full transition-all" style={{ width: `${Math.min(100, (goldPerDay/meta)*100)/3}%`, background: TIERS.gold.color }} />
         </div>
       </section>
 
       {critical && (
         <div className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>Alerta: orçamento diário abaixo da meta de dignidade ({fmtBRL(meta)}/dia).</span>
+          <span>Alerta: nível Bronze ({fmtBRL(bronzePerDay)}/dia) abaixo do alvo de {fmtBRL(meta)}/dia.</span>
         </div>
       )}
 
@@ -167,6 +186,55 @@ function BucketCard({
           {warning}
         </div>
       )}
+    </div>
+  );
+}
+
+function TierCard({
+  tierKey, perDay, days, meta, active,
+}: { tierKey: TierKey; perDay: number; days: number; meta: number; active: boolean }) {
+  const tier = TIERS[tierKey];
+  const Icon = tier.icon;
+  const pct = Math.min(100, (perDay / meta) * 100);
+  const ok = perDay >= meta;
+  return (
+    <div
+      className={`rounded-xl border p-3 transition-all ${active ? "shadow-[0_0_24px_-6px]" : ""}`}
+      style={{
+        borderColor: active ? tier.color : "var(--border)",
+        background: active
+          ? `linear-gradient(135deg, color-mix(in oklab, ${tier.color} 14%, transparent), transparent)`
+          : "transparent",
+        boxShadow: active ? `0 0 24px -6px ${tier.color}80` : undefined,
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div
+            className="h-8 w-8 rounded-lg flex items-center justify-center"
+            style={{ background: `${tier.color}22`, color: tier.color }}
+          >
+            <Icon className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="text-xs font-bold tracking-wider uppercase" style={{ color: tier.color }}>
+              {tier.label}
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              {days} {days === 1 ? "dia" : "dias"} restantes
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-base font-bold tabular-nums">{fmtBRL(perDay)}</div>
+          <div className={`text-[10px] font-semibold ${ok ? "text-[var(--income)]" : "text-destructive"}`}>
+            {ok ? "Atinge meta" : `−${fmtBRL(meta - perDay)}/dia`}
+          </div>
+        </div>
+      </div>
+      <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+        <div className="h-full transition-all" style={{ width: `${pct}%`, background: tier.color }} />
+      </div>
     </div>
   );
 }
