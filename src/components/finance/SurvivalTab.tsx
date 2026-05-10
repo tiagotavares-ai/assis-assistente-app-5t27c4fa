@@ -29,6 +29,13 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const activeTier: TierKey =
     goldPerDay >= meta ? "gold" : silverPerDay >= meta ? "silver" : "bronze";
 
+  // Cor dinâmica do card principal: maior nível atingido, ou vermelho se Bronze < meta.
+  const CRITICAL = "#EF4444";
+  const heroColor = bronzePerDay < meta ? CRITICAL : TIERS[activeTier].color;
+  const heroBg = `linear-gradient(135deg, ${heroColor}, color-mix(in oklab, ${heroColor} 55%, #000))`;
+  const heroGlow = `0 0 32px -6px ${heroColor}aa`;
+  const heroLevelLabel = bronzePerDay < meta ? "Crítico" : TIERS[activeTier].label;
+
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {asfixia && (
