@@ -46,10 +46,10 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
       )}
       {/* Métrica principal (Bronze) */}
       <section
-        className="relative overflow-hidden rounded-2xl p-5 border border-primary/30"
-        style={{ background: "var(--gradient-survival)", boxShadow: "var(--shadow-glow-amber)" }}
+        className="relative overflow-hidden rounded-2xl p-5 border"
+        style={{ background: heroBg, boxShadow: heroGlow, borderColor: `${heroColor}66` }}
       >
-        <div className="flex items-center justify-between text-primary-foreground/80 text-[10px] tracking-[0.25em] uppercase">
+        <div className="flex items-center justify-between text-black/70 text-[10px] tracking-[0.25em] uppercase">
           <span className="flex items-center gap-1.5">
             <Activity className="h-3 w-3" /> Métrica de Sobrevivência
           </span>
