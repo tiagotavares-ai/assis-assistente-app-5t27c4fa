@@ -29,6 +29,15 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const activeTier: TierKey =
     goldPerDay >= meta ? "gold" : silverPerDay >= meta ? "silver" : "bronze";
 
+  // Cor dinâmica do card principal: maior nível atingido, ou vermelho se Bronze < meta.
+  const CRITICAL = "#EF4444";
+  const isCritical = bronzePerDay < meta;
+  const heroColor = isCritical ? CRITICAL : TIERS[activeTier].color;
+  const heroBg = `linear-gradient(135deg, ${heroColor}, color-mix(in oklab, ${heroColor} 55%, #000))`;
+  const heroGlow = `0 0 32px -6px ${heroColor}aa`;
+  const heroText = isCritical ? "#fff" : "#0b0b0b";
+  const heroTextSoft = isCritical ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)";
+
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {asfixia && (
@@ -39,26 +48,26 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
       )}
       {/* Métrica principal (Bronze) */}
       <section
-        className="relative overflow-hidden rounded-2xl p-5 border border-primary/30"
-        style={{ background: "var(--gradient-survival)", boxShadow: "var(--shadow-glow-amber)" }}
+        className="relative overflow-hidden rounded-2xl p-5 border"
+        style={{ background: heroBg, boxShadow: heroGlow, borderColor: `${heroColor}66` }}
       >
-        <div className="flex items-center justify-between text-primary-foreground/80 text-[10px] tracking-[0.25em] uppercase">
+        <div className="flex items-center justify-between text-[10px] tracking-[0.25em] uppercase" style={{ color: heroTextSoft }}>
           <span className="flex items-center gap-1.5">
-            <Activity className="h-3 w-3" /> Métrica de Sobrevivência
+            <Activity className="h-3 w-3" /> Métrica · {isCritical ? "Crítico" : TIERS[activeTier].label}
           </span>
           <span>Ciclo: {fmtDate(cycle.start)} a {fmtDate(cycle.end)}</span>
         </div>
-        <div className="mt-3 text-primary-foreground">
+        <div className="mt-3" style={{ color: heroText }}>
           <div className="text-4xl font-bold tracking-tight">{fmtBRL(bronzePerDay)}</div>
-          <div className="text-xs opacity-80 mt-1">por dia · {cycle.bronzeDays} dias restantes</div>
+          <div className="text-xs mt-1" style={{ color: heroTextSoft }}>por dia · {cycle.bronzeDays} dias restantes</div>
         </div>
-        <div className="mt-4 h-1.5 rounded-full bg-black/25 overflow-hidden">
+        <div className="mt-4 h-1.5 rounded-full overflow-hidden" style={{ background: isCritical ? "rgba(0,0,0,0.35)" : "rgba(0,0,0,0.25)" }}>
           <div
-            className="h-full bg-primary-foreground/90 transition-all"
-            style={{ width: `${Math.min(100, progress)}%` }}
+            className="h-full transition-all"
+            style={{ width: `${Math.min(100, progress)}%`, background: heroText }}
           />
         </div>
-        <div className="mt-2 flex justify-between text-[10px] text-primary-foreground/70">
+        <div className="mt-2 flex justify-between text-[10px]" style={{ color: heroTextSoft }}>
           <span>Dia {cycle.elapsed} de {cycle.totalDays}</span>
           <span>Total: {fmtBRL(total)}</span>
         </div>
