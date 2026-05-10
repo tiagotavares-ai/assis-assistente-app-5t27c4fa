@@ -116,7 +116,13 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           Baldes Operacionais
         </h2>
         <BucketCard icon={Smartphone} name="PicPay" balance={picpay?.balance ?? 0} accent="primary" />
-        <BucketCard icon={Banknote} name="Espécie" balance={especie?.balance ?? 0} accent="primary" />
+        <BucketCard
+          icon={Banknote}
+          name="Espécie"
+          balance={especie?.balance ?? 0}
+          accent="primary"
+          warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
+        />
       </section>
 
       <RecentActivity data={data} />
@@ -125,24 +131,42 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 }
 
 function BucketCard({
-  icon: Icon, name, balance, accent,
-}: { icon: typeof Activity; name: string; balance: number; accent: "primary" | "structural" }) {
+  icon: Icon, name, balance, accent, warning,
+}: { icon: typeof Activity; name: string; balance: number; accent: "primary" | "structural"; warning?: string }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-industrial)]">
-      <div className="flex items-center gap-3">
-        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-          accent === "primary" ? "bg-primary/15 text-primary" : "bg-[var(--structural)]/15 text-[var(--structural)]"
-        }`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div>
-          <div className="text-sm font-semibold">{name}</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Saldo disponível
+    <div className={`rounded-xl border bg-card p-4 shadow-[var(--shadow-industrial)] ${
+      warning ? "border-amber-500/50" : "border-border"
+    }`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+            warning
+              ? "bg-amber-500/15 text-amber-500"
+              : accent === "primary"
+                ? "bg-primary/15 text-primary"
+                : "bg-[var(--structural)]/15 text-[var(--structural)]"
+          }`}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold flex items-center gap-1.5">
+              {name}
+              {warning && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Saldo disponível
+            </div>
           </div>
         </div>
+        <div className={`text-lg font-bold tabular-nums ${warning ? "text-amber-500" : ""}`}>
+          {fmtBRL(balance)}
+        </div>
       </div>
-      <div className="text-lg font-bold tabular-nums">{fmtBRL(balance)}</div>
+      {warning && (
+        <div className="mt-2 text-[10px] uppercase tracking-wider text-amber-500/90">
+          {warning}
+        </div>
+      )}
     </div>
   );
 }
