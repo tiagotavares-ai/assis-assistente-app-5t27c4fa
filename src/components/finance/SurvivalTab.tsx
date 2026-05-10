@@ -116,7 +116,13 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           Baldes Operacionais
         </h2>
         <BucketCard icon={Smartphone} name="PicPay" balance={picpay?.balance ?? 0} accent="primary" />
-        <BucketCard icon={Banknote} name="Espécie" balance={especie?.balance ?? 0} accent="primary" />
+        <BucketCard
+          icon={Banknote}
+          name="Espécie"
+          balance={especie?.balance ?? 0}
+          accent="primary"
+          warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
+        />
       </section>
 
       <RecentActivity data={data} />
