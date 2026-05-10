@@ -1,4 +1,11 @@
 // Ciclo de Sobrevivência: do dia 20 de um mês ao dia 19 do mês seguinte (30 dias).
+// Os dias restantes são contados a partir de AMANHÃ (gastos de hoje considerados encerrados).
+const MS_DAY = 86400000;
+
+const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const diffDays = (a: Date, b: Date) =>
+  Math.round((startOfDay(a).getTime() - startOfDay(b).getTime()) / MS_DAY);
+
 export function getCurrentCycle(today: Date = new Date()) {
   const day = today.getDate();
   const year = today.getFullYear();
@@ -11,36 +18,35 @@ export function getCurrentCycle(today: Date = new Date()) {
   }
   const start = new Date(startYear, startMonth, 20);
   const nextCycleStart = new Date(startYear, startMonth + 1, 20);
-  // exibição: último dia do ciclo (dia 19 do mês seguinte)
   const end = new Date(startYear, startMonth + 1, 19);
 
-  const msDay = 86400000;
-  const totalDays = Math.round((nextCycleStart.getTime() - start.getTime()) / msDay);
-  const elapsed = Math.max(0, Math.round((today.getTime() - start.getTime()) / msDay));
-  const remaining = Math.max(1, totalDays - elapsed);
+  const totalDays = diffDays(nextCycleStart, start);
+  const elapsed = Math.max(0, diffDays(today, start));
 
-  // Marcos: próxima ocorrência do dia 23 (Prata) e 26 (Ouro) a partir de hoje.
+  // Próxima ocorrência de um dia-alvo (estritamente após hoje).
   const nextOccurrence = (targetDay: number) => {
     let y = year, m = month;
     if (day >= targetDay) { m += 1; if (m > 11) { m = 0; y += 1; } }
     return new Date(y, m, targetDay);
   };
-  const daysUntil = (target: Date) => {
-    const diff = Math.ceil((target.getTime() - today.getTime()) / msDay);
-    return Math.max(1, diff);
-  };
-  const silverTarget = nextOccurrence(23);
-  const goldTarget = nextOccurrence(26);
+
+  // Dias restantes: do amanhã até a data-alvo, inclusive.
+  // Ex.: hoje 10/05 → alvo 20/05 = 10 dias.
+  const daysRemaining = (target: Date) => Math.max(1, diffDays(target, today));
+
+  const bronzeDays = daysRemaining(nextCycleStart); // próximo dia 20
+  const silverDays = daysRemaining(nextOccurrence(23));
+  const goldDays   = daysRemaining(nextOccurrence(26));
 
   return {
     start,
     end,
     totalDays,
     elapsed,
-    remaining, // Bronze: dias até próximo dia 20
-    bronzeDays: remaining,
-    silverDays: daysUntil(silverTarget),
-    goldDays: daysUntil(goldTarget),
+    remaining: bronzeDays,
+    bronzeDays,
+    silverDays,
+    goldDays,
   };
 }
 
