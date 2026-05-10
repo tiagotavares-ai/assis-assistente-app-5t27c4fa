@@ -19,13 +19,18 @@ export function getCurrentCycle(today: Date = new Date()) {
   const elapsed = Math.max(0, Math.round((today.getTime() - start.getTime()) / msDay));
   const remaining = Math.max(1, totalDays - elapsed);
 
-  // Marcos para níveis Prata (dia 23) e Ouro (dia 26) do mês de início.
-  const silverTarget = new Date(startYear, startMonth, 23);
-  const goldTarget = new Date(startYear, startMonth, 26);
+  // Marcos: próxima ocorrência do dia 23 (Prata) e 26 (Ouro) a partir de hoje.
+  const nextOccurrence = (targetDay: number) => {
+    let y = year, m = month;
+    if (day >= targetDay) { m += 1; if (m > 11) { m = 0; y += 1; } }
+    return new Date(y, m, targetDay);
+  };
   const daysUntil = (target: Date) => {
     const diff = Math.ceil((target.getTime() - today.getTime()) / msDay);
     return Math.max(1, diff);
   };
+  const silverTarget = nextOccurrence(23);
+  const goldTarget = nextOccurrence(26);
 
   return {
     start,
