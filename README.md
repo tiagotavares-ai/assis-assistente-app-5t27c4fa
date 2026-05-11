@@ -1,5 +1,4 @@
-# Assis
-
+# Assis Assistente
 Aplicativo pessoal de gestão financeira focado em **sobrevivência diária** e disciplina de caixa. O Assis acompanha o saldo consolidado entre PicPay e carteira física, calcula quanto você pode gastar por dia e mostra o status da operação em três níveis de meta.
 
 ## ✨ Principais recursos
