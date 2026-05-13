@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Brush } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
+import { useMaskValues } from "@/hooks/useMaskValues";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -15,6 +16,7 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
   const [target, setTarget] = useState<Tx | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { fmt } = useMaskValues();
 
   const items = data.transactions.slice(0, 8);
   if (!items.length) return null;
@@ -95,7 +97,7 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
                 </div>
               </div>
               <div className={`text-sm font-bold tabular-nums ${color}`}>
-                {sign}{fmtBRL(Number(t.amount))}
+                {sign}{fmt(Number(t.amount))}
               </div>
               <button
                 onClick={() => setTarget(t)}
