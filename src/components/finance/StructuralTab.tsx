@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const nubank = data.get("Nubank");
+  const { fmt } = useMaskValues();
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [day, setDay] = useState("5");
