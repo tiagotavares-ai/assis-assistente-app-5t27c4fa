@@ -97,7 +97,7 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
                 </div>
               </div>
               <div className={`text-sm font-bold tabular-nums ${color}`}>
-                {sign}{fmtBRL(Number(t.amount))}
+                {sign}{fmt(Number(t.amount))}
               </div>
               <button
                 onClick={() => setTarget(t)}
