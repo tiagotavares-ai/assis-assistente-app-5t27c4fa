@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Brush } from "lucide-react";
 import { fmtBRL } from "@/lib/cycle";
+import { useMaskValues } from "@/hooks/useMaskValues";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
