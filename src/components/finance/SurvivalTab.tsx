@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import {
-  Activity, Banknote, Smartphone, AlertTriangle, Siren, AlertOctagon,
-  Trophy, Award, Medal, Eye, EyeOff, ShieldCheck,
+  Activity, Banknote, Smartphone, CreditCard, AlertTriangle, Siren, AlertOctagon,
+  Trophy, Award, Medal, Eye, EyeOff,
 } from "lucide-react";
 import { fmtDate, getCurrentCycle, classifyLevel, TIER_THRESHOLDS, type SurvivalLevel } from "@/lib/cycle";
 import { useMaskValues } from "@/hooks/useMaskValues";
@@ -21,8 +21,8 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const nubank  = data.get("Nubank");
 
   const cycle = getCurrentCycle();
-  const liquidTotal = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
-  const reserveTotal = nubank?.balance ?? 0;
+  const liquidTotal =
+    (picpay?.balance ?? 0) + (especie?.balance ?? 0) + (nubank?.balance ?? 0);
 
   const perDay = liquidTotal / cycle.daysRemaining;
   const level = classifyLevel(perDay);
@@ -99,23 +99,6 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         <TierRow level="ouro"   perDay={perDay} active={level === "ouro"}   fmt={fmt} />
       </section>
 
-      {/* Estoque de Segurança / Estabilidade */}
-      <section className="rounded-2xl border border-[color:var(--structural)]/30 bg-gradient-to-b from-card to-card/60 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10px] tracking-[0.3em] uppercase text-[color:var(--structural)]">
-            <ShieldCheck className="h-3 w-3" /> Estoque de Segurança · Estabilidade
-          </div>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Reserva</span>
-        </div>
-        <div className="rounded-xl bg-[color:var(--structural)]/10 p-4">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Nubank · Reserva Estrutural</div>
-          <div className="text-3xl font-bold tabular-nums mt-1">{fmt(reserveTotal)}</div>
-          <div className="text-[11px] text-muted-foreground mt-1">
-            Capital protegido — não entra no cálculo diário.
-          </div>
-        </div>
-      </section>
-
       {/* Contas atrasadas */}
       {(() => {
         const today = new Date();
@@ -148,14 +131,20 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 
       {/* Baldes Operacionais */}
       <section className="space-y-3">
-        <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground px-1">
-          Baldes Operacionais
-        </h2>
-        <BucketCard icon={Smartphone} name="PicPay"  balance={picpay?.balance  ?? 0} fmt={fmt} />
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+            Baldes Operacionais
+          </h2>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Caixa Total <span className="font-bold text-foreground tabular-nums">{fmt(liquidTotal)}</span>
+          </span>
+        </div>
+        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="PicPay" balance={picpay?.balance ?? 0} fmt={fmt} />
         <BucketCard
-          icon={Banknote} name="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
+          icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
         />
+        <BucketCard icon={CreditCard} name="Reserva (Cartão)" subtitle="Nubank" balance={nubank?.balance ?? 0} fmt={fmt} />
       </section>
 
       <RecentActivity data={data} />
@@ -200,8 +189,8 @@ function TierRow({
 }
 
 function BucketCard({
-  icon: Icon, name, balance, warning, fmt,
-}: { icon: typeof Activity; name: string; balance: number; warning?: string; fmt: (v: number) => string }) {
+  icon: Icon, name, subtitle, balance, warning, fmt,
+}: { icon: typeof Activity; name: string; subtitle?: string; balance: number; warning?: string; fmt: (v: number) => string }) {
   return (
     <div className={`rounded-xl border bg-card p-4 shadow-[var(--shadow-industrial)] ${warning ? "border-amber-500/50" : "border-border"}`}>
       <div className="flex items-center justify-between">
@@ -214,7 +203,9 @@ function BucketCard({
               {name}
               {warning && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Saldo disponível</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {subtitle ?? "Saldo disponível"}
+            </div>
           </div>
         </div>
         <div className={`text-lg font-bold tabular-nums ${warning ? "text-amber-500" : ""}`}>{fmt(balance)}</div>
@@ -223,3 +214,4 @@ function BucketCard({
     </div>
   );
 }
+
