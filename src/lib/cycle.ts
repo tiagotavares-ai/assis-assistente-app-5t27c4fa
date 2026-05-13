@@ -19,15 +19,16 @@ export function getCurrentCycle(today: Date = new Date()) {
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  // Início: dia 10 do mês atual se hoje >= 10, senão dia 10 do mês anterior.
-  let startYear = year, startMonth = month;
-  if (day < 10) {
-    startMonth = month - 1;
-    if (startMonth < 0) { startMonth = 11; startYear -= 1; }
-  }
-  const start = new Date(startYear, startMonth, 10);
-  // Fim: próximo dia 23 (dia 23 do mês seguinte ao início).
-  const end = new Date(startYear, startMonth + 1, 23);
+  // Fim do ciclo: PRÓXIMO dia 23 no calendário a partir de hoje.
+  // - Se hoje < dia 23 → 23 do mês atual.
+  // - Se hoje >= dia 23 → 23 do mês seguinte.
+  const end = day < 23
+    ? new Date(year, month, 23)
+    : new Date(year, month + 1, 23);
+
+  // Início do ciclo: dia 10 do mês corrente do "end" - 1 (mês anterior ao fim).
+  // Em outras palavras: o ciclo abre no dia 10 do mês em que o "end" está.
+  const start = new Date(end.getFullYear(), end.getMonth(), 10);
 
   const totalDays = diffDays(end, start);
   const elapsed = Math.max(0, diffDays(today, start));
