@@ -16,6 +16,7 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
   const [target, setTarget] = useState<Tx | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { fmt } = useMaskValues();
 
   const items = data.transactions.slice(0, 8);
   if (!items.length) return null;
