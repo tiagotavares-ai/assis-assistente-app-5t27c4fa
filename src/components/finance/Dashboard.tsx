@@ -8,6 +8,8 @@ import { MovementFab } from "@/components/finance/MovementFab";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { supabase } from "@/integrations/supabase/client";
+import { MaskValuesProvider, useMaskValues } from "@/hooks/useMaskValues";
+import { Eye, EyeOff } from "lucide-react";
 
 type Tab = "sobrevivencia" | "estrutural" | "entrada";
 
@@ -20,7 +22,11 @@ const TABS: { id: Tab; label: string; icon: typeof Activity }[] = [
 export function Dashboard() {
   return (
     <AuthGate>
-      {() => <DashboardInner />}
+      {() => (
+        <MaskValuesProvider>
+          <DashboardInner />
+        </MaskValuesProvider>
+      )}
     </AuthGate>
   );
 }
@@ -28,6 +34,7 @@ export function Dashboard() {
 function DashboardInner() {
   const [tab, setTab] = useState<Tab>("sobrevivencia");
   const data = useFinanceData();
+  const { masked, toggle } = useMaskValues();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -44,13 +51,23 @@ function DashboardInner() {
               Sistema Operacional
             </span>
           </div>
-          <button
-            onClick={handleLogout}
-            aria-label="Sair"
-            className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggle}
+              aria-label={masked ? "Mostrar valores" : "Ocultar valores"}
+              title={masked ? "Mostrar valores" : "Ocultar valores"}
+              className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+            >
+              {masked ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={handleLogout}
+              aria-label="Sair"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">
           Assis <span className="text-primary">Assistente</span>
