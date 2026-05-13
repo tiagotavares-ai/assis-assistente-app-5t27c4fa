@@ -100,11 +100,11 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
         </div>
         <div className="mt-3 text-white">
           <div className="text-[11px] uppercase tracking-wider opacity-80">Nubank</div>
-          <div className="text-4xl font-bold tracking-tight">{fmtBRL(nubank?.balance ?? 0)}</div>
+          <div className="text-4xl font-bold tracking-tight">{fmt(nubank?.balance ?? 0)}</div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-white text-xs">
-          <Stat label="Compromissos" value={fmtBRL(totalFixed)} />
-          <Stat label="Pagos" value={fmtBRL(paidFixed)} />
+          <Stat label="Compromissos" value={fmt(totalFixed)} />
+          <Stat label="Pagos" value={fmt(paidFixed)} />
         </div>
       </section>
 
@@ -151,7 +151,7 @@ export function StructuralTab({ data }: { data: ReturnType<typeof useFinanceData
                 Vence dia {f.due_day}
               </div>
             </div>
-            <div className="text-sm font-bold tabular-nums">{fmtBRL(Number(f.amount))}</div>
+            <div className="text-sm font-bold tabular-nums">{fmt(Number(f.amount))}</div>
             <button onClick={() => openEdit(f)} className="text-muted-foreground hover:text-primary p-1" aria-label="Editar">
               <Pencil className="h-4 w-4" />
             </button>
