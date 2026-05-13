@@ -22,6 +22,7 @@ export type Database = {
           id: string
           name: string
           paid: boolean
+          user_id: string
         }
         Insert: {
           amount?: number
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           name: string
           paid?: boolean
+          user_id?: string
         }
         Update: {
           amount?: number
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           name?: string
           paid?: boolean
+          user_id?: string
         }
         Relationships: []
       }
@@ -50,6 +53,7 @@ export type Database = {
           id: string
           kind: string
           source: string | null
+          user_id: string
           wallet_id: string
         }
         Insert: {
@@ -60,6 +64,7 @@ export type Database = {
           id?: string
           kind: string
           source?: string | null
+          user_id?: string
           wallet_id: string
         }
         Update: {
@@ -70,6 +75,7 @@ export type Database = {
           id?: string
           kind?: string
           source?: string | null
+          user_id?: string
           wallet_id?: string
         }
         Relationships: [
@@ -89,6 +95,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          user_id: string
         }
         Insert: {
           balance?: number
@@ -96,6 +103,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          user_id?: string
         }
         Update: {
           balance?: number
@@ -103,6 +111,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          user_id?: string
         }
         Relationships: []
       }
