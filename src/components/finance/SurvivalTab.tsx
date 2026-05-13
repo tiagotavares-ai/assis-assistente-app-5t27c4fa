@@ -189,8 +189,8 @@ function TierRow({
 }
 
 function BucketCard({
-  icon: Icon, name, balance, warning, fmt,
-}: { icon: typeof Activity; name: string; balance: number; warning?: string; fmt: (v: number) => string }) {
+  icon: Icon, name, subtitle, balance, warning, fmt,
+}: { icon: typeof Activity; name: string; subtitle?: string; balance: number; warning?: string; fmt: (v: number) => string }) {
   return (
     <div className={`rounded-xl border bg-card p-4 shadow-[var(--shadow-industrial)] ${warning ? "border-amber-500/50" : "border-border"}`}>
       <div className="flex items-center justify-between">
@@ -203,7 +203,9 @@ function BucketCard({
               {name}
               {warning && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Saldo disponível</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {subtitle ?? "Saldo disponível"}
+            </div>
           </div>
         </div>
         <div className={`text-lg font-bold tabular-nums ${warning ? "text-amber-500" : ""}`}>{fmt(balance)}</div>
@@ -212,3 +214,4 @@ function BucketCard({
     </div>
   );
 }
+
