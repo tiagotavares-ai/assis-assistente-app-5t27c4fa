@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Building2, Plus, Trash2, Check, Pencil } from "lucide-react";
-import { fmtBRL } from "@/lib/cycle";
+import { useMaskValues } from "@/hooks/useMaskValues";
 import { useMaskValues } from "@/hooks/useMaskValues";
 import { supabase } from "@/integrations/supabase/client";
 import type { useFinanceData, FixedAccount } from "@/hooks/useFinanceData";
