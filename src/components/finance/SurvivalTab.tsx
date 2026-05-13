@@ -21,8 +21,8 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const nubank  = data.get("Nubank");
 
   const cycle = getCurrentCycle();
-  const liquidTotal = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
-  const reserveTotal = nubank?.balance ?? 0;
+  const liquidTotal =
+    (picpay?.balance ?? 0) + (especie?.balance ?? 0) + (nubank?.balance ?? 0);
 
   const perDay = liquidTotal / cycle.daysRemaining;
   const level = classifyLevel(perDay);
