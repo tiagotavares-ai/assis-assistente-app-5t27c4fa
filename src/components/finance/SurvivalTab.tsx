@@ -86,7 +86,44 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
         <div className="mt-2 flex justify-between text-[10px]" style={{ color: heroTextSoft }}>
           <span>Ciclo: {fmtDate(cycle.start)} → {fmtDate(cycle.end)}</span>
-          <span>Caixa líquido: {fmt(liquidTotal)}</span>
+          <span>Operacional: {fmt(liquidOperational)}</span>
+        </div>
+      </section>
+
+      {/* Painel do Ciclo — auditoria da métrica diária */}
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-industrial)]">
+        <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <CalendarClock className="h-3 w-3" /> Painel do Ciclo
+          </span>
+          <span>Próximo dia 23</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border/70 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Fim do ciclo</div>
+            <div className="text-lg font-bold tabular-nums mt-0.5">
+              {cycle.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              {cycle.end.toLocaleDateString("pt-BR", { weekday: "long" })}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border/70 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Dias restantes</div>
+            <div className="text-lg font-bold tabular-nums mt-0.5">
+              {cycle.daysRemaining} {cycle.daysRemaining === 1 ? "dia" : "dias"}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 23</div>
+          </div>
+        </div>
+        <div className="mt-3 rounded-xl bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
+          <div className="font-mono text-foreground">
+            {fmt(liquidOperational)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
+          </div>
+          <div className="mt-1">
+            Caixa operacional (PicPay + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
+            está <span className="font-bold text-foreground">blindada</span> e não entra no orçamento diário.
+          </div>
         </div>
       </section>
 
