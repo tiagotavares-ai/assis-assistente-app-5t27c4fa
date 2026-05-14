@@ -21,10 +21,12 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const nubank  = data.get("Nubank");
 
   const cycle = getCurrentCycle();
-  const liquidTotal =
-    (picpay?.balance ?? 0) + (especie?.balance ?? 0) + (nubank?.balance ?? 0);
+  // Reserva (Nubank) é BLINDADA: não entra no cálculo do orçamento diário.
+  const liquidOperational = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
+  const reserveShielded = nubank?.balance ?? 0;
+  const liquidTotal = liquidOperational + reserveShielded;
 
-  const perDay = liquidTotal / cycle.daysRemaining;
+  const perDay = liquidOperational / cycle.daysRemaining;
   const level = classifyLevel(perDay);
   const tier = TIERS[level];
   const isBronze = level === "bronze";
