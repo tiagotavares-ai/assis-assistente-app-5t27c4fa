@@ -175,7 +175,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             Baldes Operacionais
           </h2>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Caixa Total <span className="font-bold text-foreground tabular-nums">{fmt(liquidTotal)}</span>
+            Operacional <span className="font-bold text-foreground tabular-nums">{fmt(liquidOperational)}</span>
           </span>
         </div>
         <BucketCard icon={Smartphone} name="Conta Digital" subtitle="PicPay" balance={picpay?.balance ?? 0} fmt={fmt} />
@@ -183,7 +183,26 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
         />
-        <BucketCard icon={CreditCard} name="Reserva (Cartão)" subtitle="Nubank" balance={nubank?.balance ?? 0} fmt={fmt} />
+
+        {/* Reserva blindada — fora do orçamento diário */}
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-emerald-500/15 text-emerald-500">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold flex items-center gap-1.5">
+                  Reserva Blindada
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-emerald-500/90">
+                  Nubank · fora do orçamento diário
+                </div>
+              </div>
+            </div>
+            <div className="text-lg font-bold tabular-nums text-emerald-500">{fmt(reserveShielded)}</div>
+          </div>
+        </div>
       </section>
 
       <RecentActivity data={data} />
