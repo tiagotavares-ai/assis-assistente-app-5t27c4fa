@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import {
   Activity, Banknote, Smartphone, CreditCard, AlertTriangle, Siren, AlertOctagon,
-  Trophy, Award, Medal, Eye, EyeOff,
+  Trophy, Award, Medal, Eye, EyeOff, ShieldCheck, CalendarClock,
 } from "lucide-react";
 import { fmtDate, getCurrentCycle, classifyLevel, TIER_THRESHOLDS, type SurvivalLevel } from "@/lib/cycle";
 import { useMaskValues } from "@/hooks/useMaskValues";
@@ -21,10 +21,12 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const nubank  = data.get("Nubank");
 
   const cycle = getCurrentCycle();
-  const liquidTotal =
-    (picpay?.balance ?? 0) + (especie?.balance ?? 0) + (nubank?.balance ?? 0);
+  // Reserva (Nubank) é BLINDADA: não entra no cálculo do orçamento diário.
+  const liquidOperational = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
+  const reserveShielded = nubank?.balance ?? 0;
+  
 
-  const perDay = liquidTotal / cycle.daysRemaining;
+  const perDay = liquidOperational / cycle.daysRemaining;
   const level = classifyLevel(perDay);
   const tier = TIERS[level];
   const isBronze = level === "bronze";
@@ -84,7 +86,44 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
         <div className="mt-2 flex justify-between text-[10px]" style={{ color: heroTextSoft }}>
           <span>Ciclo: {fmtDate(cycle.start)} → {fmtDate(cycle.end)}</span>
-          <span>Caixa líquido: {fmt(liquidTotal)}</span>
+          <span>Operacional: {fmt(liquidOperational)}</span>
+        </div>
+      </section>
+
+      {/* Painel do Ciclo — auditoria da métrica diária */}
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-industrial)]">
+        <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <CalendarClock className="h-3 w-3" /> Painel do Ciclo
+          </span>
+          <span>Próximo dia 23</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border/70 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Fim do ciclo</div>
+            <div className="text-lg font-bold tabular-nums mt-0.5">
+              {cycle.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              {cycle.end.toLocaleDateString("pt-BR", { weekday: "long" })}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border/70 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Dias restantes</div>
+            <div className="text-lg font-bold tabular-nums mt-0.5">
+              {cycle.daysRemaining} {cycle.daysRemaining === 1 ? "dia" : "dias"}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 23</div>
+          </div>
+        </div>
+        <div className="mt-3 rounded-xl bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
+          <div className="font-mono text-foreground">
+            {fmt(liquidOperational)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
+          </div>
+          <div className="mt-1">
+            Caixa operacional (PicPay + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
+            está <span className="font-bold text-foreground">blindada</span> e não entra no orçamento diário.
+          </div>
         </div>
       </section>
 
@@ -136,7 +175,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             Baldes Operacionais
           </h2>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Caixa Total <span className="font-bold text-foreground tabular-nums">{fmt(liquidTotal)}</span>
+            Operacional <span className="font-bold text-foreground tabular-nums">{fmt(liquidOperational)}</span>
           </span>
         </div>
         <BucketCard icon={Smartphone} name="Conta Digital" subtitle="PicPay" balance={picpay?.balance ?? 0} fmt={fmt} />
@@ -144,7 +183,26 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
         />
-        <BucketCard icon={CreditCard} name="Reserva (Cartão)" subtitle="Nubank" balance={nubank?.balance ?? 0} fmt={fmt} />
+
+        {/* Reserva blindada — fora do orçamento diário */}
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-emerald-500/15 text-emerald-500">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold flex items-center gap-1.5">
+                  Reserva Blindada
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-emerald-500/90">
+                  Nubank · fora do orçamento diário
+                </div>
+              </div>
+            </div>
+            <div className="text-lg font-bold tabular-nums text-emerald-500">{fmt(reserveShielded)}</div>
+          </div>
+        </div>
       </section>
 
       <RecentActivity data={data} />
