@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import {
   Activity, Banknote, Smartphone, CreditCard, AlertTriangle, Siren, AlertOctagon,
-  Trophy, Award, Medal, Eye, EyeOff,
+  Trophy, Award, Medal, Eye, EyeOff, ShieldCheck, CalendarClock,
 } from "lucide-react";
 import { fmtDate, getCurrentCycle, classifyLevel, TIER_THRESHOLDS, type SurvivalLevel } from "@/lib/cycle";
 import { useMaskValues } from "@/hooks/useMaskValues";
