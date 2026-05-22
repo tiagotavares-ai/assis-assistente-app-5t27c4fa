@@ -96,7 +96,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           <span className="flex items-center gap-1.5">
             <CalendarClock className="h-3 w-3" /> Painel do Ciclo
           </span>
-          <span>Próximo dia 23</span>
+          <span>Próximo dia 26</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-border/70 p-3">
