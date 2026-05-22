@@ -113,7 +113,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             <div className="text-lg font-bold tabular-nums mt-0.5">
               {cycle.daysRemaining} {cycle.daysRemaining === 1 ? "dia" : "dias"}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 23</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 26</div>
           </div>
         </div>
         <div className="mt-3 rounded-xl bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
