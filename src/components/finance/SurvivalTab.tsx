@@ -22,7 +22,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 
   const cycle = getCurrentCycle();
   // Reserva (Nubank) é BLINDADA: não entra no cálculo do orçamento diário.
-  const liquidOperational = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
+  const liquidOperational = (caixa?.balance ?? 0) + (especie?.balance ?? 0);
   const reserveShielded = nubank?.balance ?? 0;
   
 
