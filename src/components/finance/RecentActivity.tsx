@@ -144,7 +144,7 @@ export function RecentActivity({ data }: { data: ReturnType<typeof useFinanceDat
             <AlertDialogDescription>
               Esta ação apaga todos os registros visíveis de atividades.
               <span className="block mt-2 text-foreground font-medium">
-                Os saldos dos baldes (Nubank, PicPay, Espécie) NÃO serão alterados.
+                Os saldos dos baldes (Nubank, Caixa, Espécie) NÃO serão alterados.
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
