@@ -26,10 +26,10 @@ export function MovementFab({ data }: { data: ReturnType<typeof useFinanceData> 
 
   // Avalia nível de sobrevivência atual (líquido / dias restantes).
   const { isBronze } = useMemo(() => {
-    const picpay  = data.get("PicPay")?.balance  ?? 0;
+    const caixa   = (data.get("Caixa")?.balance ?? data.get("PicPay")?.balance) ?? 0;
     const especie = data.get("Espécie")?.balance ?? 0;
     const cycle = getCurrentCycle();
-    const perDay = (picpay + especie) / cycle.daysRemaining;
+    const perDay = (caixa + especie) / cycle.daysRemaining;
     return { isBronze: classifyLevel(perDay) === "bronze" };
   }, [data]);
 
