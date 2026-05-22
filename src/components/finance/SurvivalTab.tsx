@@ -121,7 +121,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             {fmt(liquidOperational)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
           </div>
           <div className="mt-1">
-            Caixa operacional (PicPay + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
+            Caixa operacional (Caixa + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
             está <span className="font-bold text-foreground">blindada</span> e não entra no orçamento diário.
           </div>
         </div>
