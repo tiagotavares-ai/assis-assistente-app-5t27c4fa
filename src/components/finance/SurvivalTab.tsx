@@ -16,7 +16,7 @@ const TIERS: Record<SurvivalLevel, { color: string; label: string; icon: typeof 
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const { fmt, masked, toggle } = useMaskValues();
-  const picpay  = data.get("PicPay");
+  const caixa   = data.get("Caixa") ?? data.get("PicPay");
   const especie = data.get("Espécie");
   const nubank  = data.get("Nubank");
 
