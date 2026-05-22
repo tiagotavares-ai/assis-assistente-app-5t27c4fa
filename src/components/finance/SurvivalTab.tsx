@@ -178,7 +178,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             Operacional <span className="font-bold text-foreground tabular-nums">{fmt(liquidOperational)}</span>
           </span>
         </div>
-        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="PicPay" balance={picpay?.balance ?? 0} fmt={fmt} />
+        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="Caixa (Pix)" balance={caixa?.balance ?? 0} fmt={fmt} />
         <BucketCard
           icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
