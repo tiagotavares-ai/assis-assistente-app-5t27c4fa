@@ -1,6 +1,7 @@
-// Ciclo de Faturamento: do dia 10 de um mês ao dia 23 do mês seguinte.
-// Métrica diária: saldo total / dias restantes até o próximo dia 23.
+// Ciclo de Faturamento: do dia 10 de um mês ao dia 26 do mês seguinte (BPC).
+// Métrica diária: saldo total / dias restantes até o próximo dia 26.
 const MS_DAY = 86400000;
+const CYCLE_END_DAY = 26;
 
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const diffDays = (a: Date, b: Date) =>
@@ -14,26 +15,21 @@ export const TIER_THRESHOLDS = {
   bronze: 15,
 } as const;
 
+export const CYCLE_END_LABEL = `dia ${CYCLE_END_DAY}`;
+
 export function getCurrentCycle(today: Date = new Date()) {
   const day = today.getDate();
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  // Fim do ciclo: PRÓXIMO dia 23 no calendário a partir de hoje.
-  // - Se hoje < dia 23 → 23 do mês atual.
-  // - Se hoje >= dia 23 → 23 do mês seguinte.
-  const end = day < 23
-    ? new Date(year, month, 23)
-    : new Date(year, month + 1, 23);
+  const end = day < CYCLE_END_DAY
+    ? new Date(year, month, CYCLE_END_DAY)
+    : new Date(year, month + 1, CYCLE_END_DAY);
 
-  // Início do ciclo: dia 10 do mês corrente do "end" - 1 (mês anterior ao fim).
-  // Em outras palavras: o ciclo abre no dia 10 do mês em que o "end" está.
   const start = new Date(end.getFullYear(), end.getMonth(), 10);
 
   const totalDays = diffDays(end, start);
   const elapsed = Math.max(0, diffDays(today, start));
-
-  // Dias restantes até o próximo dia 23 (inclui hoje e o dia 23).
   const daysRemaining = Math.max(1, diffDays(end, today) + 1);
 
   return { start, end, totalDays, elapsed, daysRemaining };

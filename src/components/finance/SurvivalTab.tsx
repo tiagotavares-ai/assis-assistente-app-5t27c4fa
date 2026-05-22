@@ -16,13 +16,13 @@ const TIERS: Record<SurvivalLevel, { color: string; label: string; icon: typeof 
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const { fmt, masked, toggle } = useMaskValues();
-  const picpay  = data.get("PicPay");
+  const caixa   = data.get("Caixa") ?? data.get("PicPay");
   const especie = data.get("Espécie");
   const nubank  = data.get("Nubank");
 
   const cycle = getCurrentCycle();
   // Reserva (Nubank) é BLINDADA: não entra no cálculo do orçamento diário.
-  const liquidOperational = (picpay?.balance ?? 0) + (especie?.balance ?? 0);
+  const liquidOperational = (caixa?.balance ?? 0) + (especie?.balance ?? 0);
   const reserveShielded = nubank?.balance ?? 0;
   
 
@@ -96,7 +96,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           <span className="flex items-center gap-1.5">
             <CalendarClock className="h-3 w-3" /> Painel do Ciclo
           </span>
-          <span>Próximo dia 23</span>
+          <span>Próximo dia 26</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-border/70 p-3">
@@ -113,7 +113,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             <div className="text-lg font-bold tabular-nums mt-0.5">
               {cycle.daysRemaining} {cycle.daysRemaining === 1 ? "dia" : "dias"}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 23</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">inclui hoje e o dia 26</div>
           </div>
         </div>
         <div className="mt-3 rounded-xl bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
@@ -121,7 +121,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             {fmt(liquidOperational)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
           </div>
           <div className="mt-1">
-            Caixa operacional (PicPay + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
+            Caixa operacional (Caixa + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
             está <span className="font-bold text-foreground">blindada</span> e não entra no orçamento diário.
           </div>
         </div>
@@ -178,7 +178,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             Operacional <span className="font-bold text-foreground tabular-nums">{fmt(liquidOperational)}</span>
           </span>
         </div>
-        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="PicPay" balance={picpay?.balance ?? 0} fmt={fmt} />
+        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="Caixa (Pix)" balance={caixa?.balance ?? 0} fmt={fmt} />
         <BucketCard
           icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
