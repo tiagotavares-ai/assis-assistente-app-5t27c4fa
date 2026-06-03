@@ -198,7 +198,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         <BucketCard
           icon={Banknote}
           name="3º Balde — Carteira Dupla"
-          subtitle="Físico · R$ 42,00 em cédulas | R$ 3,35 em moedas"
+          subtitle="Físico · cédulas e moedas"
           balance={especie?.balance ?? 0}
           fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
