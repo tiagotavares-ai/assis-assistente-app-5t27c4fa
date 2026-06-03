@@ -1,55 +1,62 @@
 import { useMemo } from "react";
 import {
-  Activity, Banknote, Smartphone, CreditCard, AlertTriangle, Siren, AlertOctagon,
+  Activity, Banknote, Smartphone, AlertTriangle, Siren, AlertOctagon,
   Trophy, Award, Medal, Eye, EyeOff, ShieldCheck, CalendarClock,
+  Bike, Lock, Info,
 } from "lucide-react";
-import { fmtDate, getCurrentCycle, classifyLevel, TIER_THRESHOLDS, type SurvivalLevel } from "@/lib/cycle";
+import {
+  fmtDate, getCurrentCycle, classifyLevel, floor2,
+  TIER_THRESHOLDS, ALERT_RED_THRESHOLD, type SurvivalLevel,
+} from "@/lib/cycle";
 import { useMaskValues } from "@/hooks/useMaskValues";
 import { RecentActivity } from "@/components/finance/RecentActivity";
+import { RACReport } from "@/components/finance/RACReport";
 import type { useFinanceData } from "@/hooks/useFinanceData";
 
 const TIERS: Record<SurvivalLevel, { color: string; label: string; icon: typeof Medal; tone: string }> = {
-  bronze: { color: "#CD7F32", label: "Bronze · Alerta",   icon: Medal,  tone: "Vermelho" },
-  prata:  { color: "#E0B84A", label: "Prata · Atenção",   icon: Award,  tone: "Amarelo" },
+  bronze: { color: "#CD7F32", label: "Atenção · Crítico", icon: Medal,  tone: "Vermelho" },
+  prata:  { color: "#E0B84A", label: "Atenção",           icon: Award,  tone: "Amarelo" },
   ouro:   { color: "#22C55E", label: "Ouro · Seguro",     icon: Trophy, tone: "Verde" },
 };
 
 export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> }) {
   const { fmt, masked, toggle } = useMaskValues();
-  const caixa   = data.get("Caixa") ?? data.get("PicPay");
+  const picpay  = data.get("PicPay");
   const especie = data.get("Espécie");
+  const nove9pay = data.get("99Pay");
   const nubank  = data.get("Nubank");
+  const fundoAluguel = data.get("Fundo Aluguel");
 
   const cycle = getCurrentCycle();
-  // Reserva (Nubank) é BLINDADA: não entra no cálculo do orçamento diário.
-  const liquidOperational = (caixa?.balance ?? 0) + (especie?.balance ?? 0);
-  const reserveShielded = nubank?.balance ?? 0;
-  
-
-  const perDay = liquidOperational / cycle.daysRemaining;
+  // FÓRMULA: somente o PicPay alimenta a métrica diária de sobrevivência.
+  const picpayBalance = picpay?.balance ?? 0;
+  const perDay = floor2(picpayBalance / cycle.daysRemaining);
   const level = classifyLevel(perDay);
   const tier = TIERS[level];
-  const isBronze = level === "bronze";
+
+  // Alerta Vermelho: dispara abaixo de R$ 15/dia, mas também permanece estático
+  // sempre que o nível não for Ouro (aviso de segurança ativa).
+  const showRedAlert = perDay < ALERT_RED_THRESHOLD || level !== "ouro";
 
   const heroBg = `linear-gradient(135deg, ${tier.color}, color-mix(in oklab, ${tier.color} 55%, #000))`;
   const heroGlow = `0 0 32px -6px ${tier.color}aa`;
-  const heroText = isBronze ? "#fff" : "#0b0b0b";
-  const heroTextSoft = isBronze ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.7)";
+  const heroText = level === "bronze" ? "#fff" : "#0b0b0b";
+  const heroTextSoft = level === "bronze" ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.7)";
 
   const progressPct = Math.min(100, (cycle.elapsed / cycle.totalDays) * 100);
-
-  // Gasto sugerido para hoje (igual ao perDay arredondado para baixo).
   const todayBudget = useMemo(() => Math.max(0, perDay), [perDay]);
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      {/* Trava de Segurança — Tech Hub Suspenso */}
-      {isBronze && (
-        <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive animate-pulse">
+      {/* Alerta Vermelho — controle de danos na bodega */}
+      {showRedAlert && (
+        <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive">
           <Siren className="h-4 w-4 shrink-0 mt-0.5" />
           <div>
             <div className="font-bold uppercase tracking-wider">Zona de Alerta</div>
-            <div className="opacity-90 mt-0.5">Gastos da Tavares Tech Hub <span className="font-bold">SUSPENSOS</span> até reabastecer o caixa.</div>
+            <div className="opacity-90 mt-0.5">
+              Gastos do <span className="font-bold">MEU LAR</span> sob restrição preventiva.
+            </div>
           </div>
         </div>
       )}
@@ -85,18 +92,18 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           <div className="h-full transition-all" style={{ width: `${progressPct}%`, background: heroText }} />
         </div>
         <div className="mt-2 flex justify-between text-[10px]" style={{ color: heroTextSoft }}>
-          <span>Ciclo: {fmtDate(cycle.start)} → {fmtDate(cycle.end)}</span>
-          <span>Operacional: {fmt(liquidOperational)}</span>
+          <span>Ciclo: {fmtDate(cycle.start)} a {fmtDate(cycle.end)}</span>
+          <span>PicPay: {fmt(picpayBalance)}</span>
         </div>
       </section>
 
-      {/* Painel do Ciclo — auditoria da métrica diária */}
+      {/* Painel do Ciclo */}
       <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-industrial)]">
         <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <CalendarClock className="h-3 w-3" /> Painel do Ciclo
           </span>
-          <span>Próximo dia 26</span>
+          <span>Ciclo: {fmtDate(cycle.start)} a {fmtDate(cycle.end)}</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-border/70 p-3">
@@ -118,11 +125,11 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         </div>
         <div className="mt-3 rounded-xl bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
           <div className="font-mono text-foreground">
-            {fmt(liquidOperational)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
+            {fmt(picpayBalance)} ÷ {cycle.daysRemaining} = <span className="font-bold">{fmt(perDay)}/dia</span>
           </div>
           <div className="mt-1">
-            Caixa operacional (Caixa + Espécie) dividido pelos dias até {fmtDate(cycle.end)}. A reserva Nubank
-            está <span className="font-bold text-foreground">blindada</span> e não entra no orçamento diário.
+            Apenas o <span className="font-bold text-foreground">1º Balde — PicPay</span> alimenta o orçamento diário.
+            Espécie, 99Pay, Nubank e Fundo Carimbado ficam <span className="font-bold text-foreground">fora</span> do cálculo.
           </div>
         </div>
       </section>
@@ -175,16 +182,38 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
             Baldes Operacionais
           </h2>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Operacional <span className="font-bold text-foreground tabular-nums">{fmt(liquidOperational)}</span>
+            PicPay <span className="font-bold text-foreground tabular-nums">{fmt(picpayBalance)}</span>
           </span>
         </div>
-        <BucketCard icon={Smartphone} name="Conta Digital" subtitle="Caixa (Pix)" balance={caixa?.balance ?? 0} fmt={fmt} />
+
         <BucketCard
-          icon={Banknote} name="Dinheiro Físico" subtitle="Espécie" balance={especie?.balance ?? 0} fmt={fmt}
+          icon={Smartphone}
+          name="1º Balde — PicPay"
+          subtitle="Sobrevivência Familiar · base do orçamento diário"
+          balance={picpayBalance}
+          fmt={fmt}
+          highlight
+        />
+
+        <BucketCard
+          icon={Banknote}
+          name="3º Balde — Carteira Dupla"
+          subtitle="Físico · R$ 42,00 em cédulas | R$ 3,35 em moedas"
+          balance={especie?.balance ?? 0}
+          fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
         />
 
-        {/* Reserva blindada — fora do orçamento diário */}
+        <BucketCard
+          icon={Bike}
+          name="4º Balde — 99Pay"
+          subtitle="Mobilidade Urbana"
+          balance={nove9pay?.balance ?? 0}
+          fmt={fmt}
+          badge="Pendência interna no app: R$ 6,00"
+        />
+
+        {/* Nubank — Reserva Estrutural blindada */}
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -192,18 +221,43 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold flex items-center gap-1.5">
-                  Reserva Blindada
-                </div>
+                <div className="text-sm font-semibold">2º Balde — Nubank</div>
                 <div className="text-[10px] uppercase tracking-wider text-emerald-500/90">
-                  Nubank · fora do orçamento diário
+                  Estrutural · fora do orçamento diário
                 </div>
               </div>
             </div>
-            <div className="text-lg font-bold tabular-nums text-emerald-500">{fmt(reserveShielded)}</div>
+            <div className="text-lg font-bold tabular-nums text-emerald-500">{fmt(nubank?.balance ?? 0)}</div>
+          </div>
+        </div>
+
+        {/* Fundo Carimbado — Aluguel */}
+        <div className="rounded-xl border border-violet-500/40 bg-violet-500/5 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-violet-500/15 text-violet-400">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold flex items-center gap-1.5">
+                  Fundo Carimbado · Aluguel
+                  <Info className="h-3 w-3 text-violet-400/80" />
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-violet-400/90">
+                  Retido em espécie · execução presencial 05/06
+                </div>
+              </div>
+            </div>
+            <div className="text-lg font-bold tabular-nums text-violet-400">{fmt(fundoAluguel?.balance ?? 0)}</div>
+          </div>
+          <div className="mt-2 text-[10px] uppercase tracking-wider text-violet-400/70">
+            Excluído de qualquer cálculo de sobrevivência
           </div>
         </div>
       </section>
+
+      {/* Relatório de Atualização Contínua (RAC) */}
+      <RACReport data={data} />
 
       <RecentActivity data={data} />
     </div>
@@ -216,11 +270,11 @@ function TierRow({
   const t = TIERS[level];
   const Icon = t.icon;
   const threshold = TIER_THRESHOLDS[level];
-  const ok = level === "bronze" ? perDay >= TIER_THRESHOLDS.bronze : perDay >= threshold;
   const rule =
     level === "bronze" ? `< ${fmt(TIER_THRESHOLDS.bronze)}/dia`
-    : level === "prata" ? `≥ ${fmt(TIER_THRESHOLDS.prata)}/dia`
+    : level === "prata" ? `≥ ${fmt(TIER_THRESHOLDS.prata)}/dia (atenção até < ${fmt(TIER_THRESHOLDS.ouro)})`
     : `≥ ${fmt(TIER_THRESHOLDS.ouro)}/dia`;
+  void threshold;
   return (
     <div
       className="rounded-xl border p-3 transition-all flex items-center gap-3"
@@ -238,7 +292,7 @@ function TierRow({
         <div className="text-[10px] text-muted-foreground">Regra: {rule}</div>
       </div>
       <div className="text-right">
-        <div className={`text-[10px] font-semibold ${ok || level === "bronze" && perDay >= TIER_THRESHOLDS.bronze ? "text-[color:var(--income)]" : "text-destructive"}`}>
+        <div className="text-[10px] font-semibold text-foreground">
           {active ? "Você está aqui" : ""}
         </div>
       </div>
@@ -247,13 +301,21 @@ function TierRow({
 }
 
 function BucketCard({
-  icon: Icon, name, subtitle, balance, warning, fmt,
-}: { icon: typeof Activity; name: string; subtitle?: string; balance: number; warning?: string; fmt: (v: number) => string }) {
+  icon: Icon, name, subtitle, balance, warning, badge, highlight, fmt,
+}: {
+  icon: typeof Activity; name: string; subtitle?: string; balance: number;
+  warning?: string; badge?: string; highlight?: boolean;
+  fmt: (v: number) => string;
+}) {
   return (
-    <div className={`rounded-xl border bg-card p-4 shadow-[var(--shadow-industrial)] ${warning ? "border-amber-500/50" : "border-border"}`}>
+    <div className={`rounded-xl border bg-card p-4 shadow-[var(--shadow-industrial)] ${
+      warning ? "border-amber-500/50" : highlight ? "border-primary/50" : "border-border"
+    }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${warning ? "bg-amber-500/15 text-amber-500" : "bg-primary/15 text-primary"}`}>
+          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+            warning ? "bg-amber-500/15 text-amber-500" : "bg-primary/15 text-primary"
+          }`}>
             <Icon className="h-5 w-5" />
           </div>
           <div>
@@ -261,15 +323,21 @@ function BucketCard({
               {name}
               {warning && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {subtitle ?? "Saldo disponível"}
-            </div>
+            {subtitle && (
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {subtitle}
+              </div>
+            )}
           </div>
         </div>
         <div className={`text-lg font-bold tabular-nums ${warning ? "text-amber-500" : ""}`}>{fmt(balance)}</div>
       </div>
       {warning && <div className="mt-2 text-[10px] uppercase tracking-wider text-amber-500/90">{warning}</div>}
+      {badge && (
+        <div className="mt-2 inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-1 text-[10px] uppercase tracking-wider text-amber-500">
+          <AlertTriangle className="h-3 w-3" /> {badge}
+        </div>
+      )}
     </div>
   );
 }
-
