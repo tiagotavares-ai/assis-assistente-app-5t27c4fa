@@ -51,10 +51,10 @@ export function Login() {
             </span>
           </div>
           <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Assis <span className="text-primary">Assistente</span>
+            Assis <span className="text-primary">Gestor</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground text-center">
-            Gestão financeira pessoal — entre para continuar
+            Mecanismo de Governança e Proteção Familiar
           </p>
         </div>
 

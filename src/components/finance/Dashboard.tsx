@@ -70,7 +70,7 @@ function DashboardInner() {
           </div>
         </div>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">
-          Assis <span className="text-primary">Assistente</span>
+          Assis <span className="text-primary">Gestor</span>
         </h1>
       </header>
 
