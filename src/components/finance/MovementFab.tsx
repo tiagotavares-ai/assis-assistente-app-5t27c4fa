@@ -24,12 +24,11 @@ export function MovementFab({ data }: { data: ReturnType<typeof useFinanceData> 
   const [category, setCategory] = useState<string>(EXPENSE_CATEGORIES[0].value);
   const [busy, setBusy] = useState(false);
 
-  // Avalia nível de sobrevivência atual (líquido / dias restantes).
+  // Métrica diária = somente PicPay (1º Balde — Sobrevivência Familiar).
   const { isBronze } = useMemo(() => {
-    const caixa   = (data.get("Caixa")?.balance ?? data.get("PicPay")?.balance) ?? 0;
-    const especie = data.get("Espécie")?.balance ?? 0;
+    const picpay = data.get("PicPay")?.balance ?? 0;
     const cycle = getCurrentCycle();
-    const perDay = (caixa + especie) / cycle.daysRemaining;
+    const perDay = picpay / cycle.daysRemaining;
     return { isBronze: classifyLevel(perDay) === "bronze" };
   }, [data]);
 

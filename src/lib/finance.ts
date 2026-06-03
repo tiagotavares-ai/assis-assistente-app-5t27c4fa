@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type Wallet = {
   id: string;
   name: string;
-  category: "sobrevivencia" | "estrutural";
+  category: "sobrevivencia" | "estrutural" | "carimbado";
   balance: number;
 };
 
