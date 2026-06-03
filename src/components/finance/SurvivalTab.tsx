@@ -34,9 +34,9 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
   const level = classifyLevel(perDay);
   const tier = TIERS[level];
 
-  // Alerta Vermelho: dispara abaixo de R$ 15/dia, mas também permanece estático
-  // sempre que o nível não for Ouro (aviso de segurança ativa).
-  const showRedAlert = perDay < ALERT_RED_THRESHOLD || level !== "ouro";
+  // Alerta Vermelho: dispara dinamicamente sempre que a métrica do PicPay
+  // cair abaixo de R$ 15,00/dia.
+  const showRedAlert = perDay < ALERT_RED_THRESHOLD;
 
   const heroBg = `linear-gradient(135deg, ${tier.color}, color-mix(in oklab, ${tier.color} 55%, #000))`;
   const heroGlow = `0 0 32px -6px ${tier.color}aa`;
@@ -198,7 +198,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
         <BucketCard
           icon={Banknote}
           name="3º Balde — Carteira Dupla"
-          subtitle="Físico · R$ 42,00 em cédulas | R$ 3,35 em moedas"
+          subtitle="Físico · cédulas e moedas"
           balance={especie?.balance ?? 0}
           fmt={fmt}
           warning={(especie?.balance ?? 0) <= 15 ? "Nível baixo para logística de rua" : undefined}
