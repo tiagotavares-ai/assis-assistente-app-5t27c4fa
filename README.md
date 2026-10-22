@@ -4,9 +4,10 @@ Aplicativo pessoal de gestão financeira focado em **sobrevivência diária** e 
 ## ✨ Principais recursos
 
 - **Métrica de Sobrevivência por Níveis**
-  - 🥉 **Bronze** — saldo dividido pelos dias até o dia 20 (alvo: R$ 20/dia)
-  - 🥈 **Prata** — saldo dividido pelos dias até o dia 23
-  - 🥇 **Ouro** — saldo dividido pelos dias até o dia 26
+  - 🥉 **Bronze** — saldo dividido para 15 dias (dia 05 do mês até 20 do próximo e vice-versa). Alvo: R$ 20,00/dia.
+  - 🥈 **Prata** — saldo dividido para 15 dias até o dia 23
+  - Alvo: R$ 25,00
+  - 🥇 **Ouro** — saldo dividido pelos dias até o dia 05.
 - **Card dinâmico** que muda de cor conforme o nível atingido (Ouro → Prata → Bronze → Crítico/Vermelho).
 - **Ciclo mensal** iniciando todo dia 20 (ex.: 20/04 a 19/05).
 - **Baldes de saldo**: PicPay (principal), Carteira Física (reserva) e Nubank, com alertas visuais quando a reserva está baixa.
