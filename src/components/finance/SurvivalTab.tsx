@@ -48,15 +48,6 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      {/* Operação Trava-Métrica */}
-      <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive">
-        <Siren className="h-4 w-4 shrink-0 mt-0.5" />
-        <div>
-          <div className="font-bold uppercase tracking-wider">Operação Trava-Métrica Ativada</div>
-          <div className="opacity-90 mt-0.5">Prioridade Zero no Lar.</div>
-        </div>
-      </div>
-
       {/* Alerta Vermelho — controle de danos na bodega */}
       {showRedAlert && (
         <div className="flex items-start gap-2 rounded-xl border border-destructive bg-destructive/15 p-3 text-xs text-destructive">
@@ -219,7 +210,6 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
           subtitle="Mobilidade Urbana"
           balance={nove9pay?.balance ?? 0}
           fmt={fmt}
-          badge="Pendência interna no app: R$ 6,00"
         />
 
         {/* Nubank — Reserva Estrutural blindada */}
@@ -253,7 +243,7 @@ export function SurvivalTab({ data }: { data: ReturnType<typeof useFinanceData> 
                   <Info className="h-3 w-3 text-violet-400/80" />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-violet-400/90">
-                  Retido em espécie · execução presencial 05/06
+                  Reserva exclusiva para aluguel
                 </div>
               </div>
             </div>
